@@ -459,6 +459,12 @@
                 o.type = 'sine'; o.frequency.setValueAtTime(60, t); 
                 g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4, t + 2); g.gain.exponentialRampToValueAtTime(0.001, t + 6);
                 o.start(t); o.stop(t+6);
+                setTimeout(() => {
+                    const o2 = this.ctx.createOscillator(); const g2 = this.ctx.createGain();
+                    o2.type='triangle'; o2.frequency.value=120; o2.connect(g2); g2.connect(this.ctx.destination);
+                    g2.gain.setValueAtTime(0, t); g2.gain.linearRampToValueAtTime(0.1, t+2); g2.gain.linearRampToValueAtTime(0, t+5);
+                    o2.start(t); o2.stop(t+5);
+                }, 100);
             }
             else if(key === 'open') {
                 const now = t;
@@ -683,6 +689,7 @@
     }
 
     function updateHearts(val, isGold = false) {
+        // GOLD LOGIC
         if (isGold) {
             state.hearts += val;
             UI.hearts.innerText = state.hearts;
@@ -709,6 +716,7 @@
         const targetY = targetRect.top + (targetRect.height/2);
 
         if (val > 0) {
+            // POP UP BIG AT CENTER
             const fly = document.createElement('div');
             fly.className = 'flying-heart';
             fly.innerText = '❤️';
@@ -721,9 +729,9 @@
 
             setTimeout(() => {
                 fly.style.transition = 'all 0.8s ease-in-out';
-                fly.style.left = targetX + 'px';
-                fly.style.top = targetY + 'px';
-                fly.style.transform = 'translate(-50%, -50%) scale(0.2)';
+                fly.style.left = targetX + 'px'; 
+                fly.style.top = targetY + 'px'; 
+                fly.style.transform = 'translate(-50%, -50%) scale(0.2)'; 
                 fly.style.opacity = '0.5';
             }, 1000);
 
@@ -735,15 +743,15 @@
                 UI.heartIcon.classList.add('heart-pump');
                 spawnFloatText(`+${val}`, targetX, targetY + 30, '#4cd964');
                 setTimeout(()=>UI.heartIcon.classList.remove('heart-pump'), 300);
-            }, 1800);
+            }, 1800); 
         } else {
+            // SUBTRACT
             AudioSys.play('break');
             UI.heartIcon.classList.add('heart-broken');
             const drop = document.createElement('div');
             drop.className = 'falling-heart';
             drop.innerText = '💔';
-            drop.style.left = targetX + 'px';
-            drop.style.top = targetY + 'px';
+            drop.style.left = targetX + 'px'; drop.style.top = targetY + 'px';
             document.body.appendChild(drop);
             
             setTimeout(() => {
@@ -835,20 +843,19 @@
             await poetChat("Yee ngeremehin 😎");
             await poetChat("Ehem ehem... 🎤");
             
-            // A. PLAY LAGU 1 (Ukulele)
+            // --- LOGIC AUDIO A (Dengerin) ---
             if(s1) {
+                // TRICK: Pancing Lagu 2 biar HP ngasih izin
+                if(s2) { s2.volume=0.5; s2.play().then(()=>s2.pause()).catch(e=>{}); }
+
                 s1.volume = 1.0;
+                s1.currentTime = 0;
                 s1.play().catch(e=>{});
                 
-                // --- TRICK MOBILE: PANCING LAGU 2 ---
-                // Putar 0.1 detik lalu pause, biar dianggap "sudah dipencet user"
-                if(s2) {
-                    s2.volume = 0.5;
-                    s2.play().then(() => s2.pause()).catch(e=>{});
-                }
+                // Jangan pake onended buat play lagu 2 langsung,
+                // biar nanti pas salju turun aja mainnya (biar dramatis)
             }
             
-            // Jeda visual
             await new Promise(r => setTimeout(r, 5000));
             q2();
         }
@@ -857,9 +864,11 @@
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            // B. LANGSUNG PLAY LAGU 2 (BGM)
+            // --- LOGIC AUDIO B (Gausah) ---
+            // Langsung mainin Lagu 2
             if(s2) {
                 s2.volume = 0.5;
+                s2.currentTime = 0;
                 s2.play().catch(e=>{});
             }
             
@@ -936,7 +945,12 @@
     }
 
     function chatWhatsApp() {
-        window.open('https://wa.me/', '_blank'); 
+        // GANTI NOMOR DI SINI (Format: 628...)
+        let myNumber = "62895328424441"; 
+        let msg = " *🚨🤍 S . O . S 🤍🚨* ";
+
+        window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+        
         princessChat("Chat Sekarang 💬");
         poetChat("Ditunggu notifnya ya...").then(nextFinal);
     }
@@ -968,19 +982,18 @@
 
         await poetChat("Kayanya, salju mulai turun...");
         
-        // JEDA 1 DETIK
-        await new Promise(r=>setTimeout(r, 1000));
-
-        isSnowing = true;
-        UI.bgCanvas.style.opacity = 1;
-        initSnowEngine();
-        
-        // AUDIO LOGIC: Jika Lagu 2 belum main (karena pilih opsi A), mainkan sekarang
+        // --- AUDIO: PUTAR LAGU 2 DI SINI (Jika belum main) ---
         const s2 = document.getElementById('bgm-song');
         if(s2 && s2.paused) {
             s2.volume = 0.5;
             s2.play().catch(e=>{});
         }
+
+        await new Promise(r=>setTimeout(r, 1000));
+
+        isSnowing = true;
+        UI.bgCanvas.style.opacity = 1;
+        initSnowEngine();
         
         await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
         
