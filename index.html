@@ -56,7 +56,6 @@
         }
 
         /* 2026 TEXT CINEMATIC */
-        /* REVISI: FONT SIZE DIPERKECIL BIAR GAK KEPOTONG DI HP */
         #year-text {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-family: 'Cinzel', serif; font-size: 3rem; color: var(--gold);
@@ -195,12 +194,12 @@
         }
         @keyframes cardIn { from { opacity:0; transform:translateY(30px) rotate(3deg); } to { opacity:1; transform:translateY(0) rotate(-1deg); } }
 
-        /* HEART ANIMATION */
+        /* HEART ANIMATION FIX */
         .flying-heart {
             position: fixed; top: 50%; left: 50%; 
             transform: translate(-50%, -50%) scale(0);
             font-size: 4rem; z-index: 9999; pointer-events: none;
-            transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+            /* Transition diatur di JS */
             opacity: 1;
         }
         .falling-heart {
@@ -209,7 +208,7 @@
         }
         @keyframes dropDown { to { top: 100%; opacity: 0; transform: rotate(45deg); } }
 
-        /* FRAME HP (MOBILE NATIVE) */
+        /* FRAME HP (FIX FOR MOBILE) */
         #mobile-frame {
             position: relative;
             width: 100%;
@@ -225,7 +224,6 @@
             z-index: 10;
             backdrop-filter: blur(0px); 
         }
-        
         .frame-glass-mode {
             background: rgba(20, 0, 50, 0.4) !important;
             backdrop-filter: blur(10px) !important;
@@ -319,6 +317,21 @@
         }
         .text-input.error-shake { border-color: red; animation: shake 0.4s; background: rgba(255,0,0,0.1); }
         .send-btn { background: var(--gold); border: none; width: 45px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        .gold-pop {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0);
+            font-size: 6rem; z-index: 10000; pointer-events: none;
+            filter: drop-shadow(0 0 20px gold);
+            animation: goldBoom 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+        @keyframes goldBoom {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            20% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            100% { top: 5%; left: 90%; transform: scale(0); opacity: 0; }
+        }
+        .float-text { position: fixed; z-index: 10000; font-weight: bold; font-size: 1.5rem; text-shadow: 0 0 5px black; pointer-events: none; animation: floatFade 1s forwards; }
+        @keyframes floatFade { to { opacity: 0; transform: translateY(-30px); } }
 
         /* START OVERLAY */
         #start-overlay {
@@ -597,7 +610,7 @@
     }
 
     function enterGame() {
-        playWithFade('open', 0.5); // Gunakan fungsi fade baru
+        playWithFade('open', 0.5); 
         const overlay = document.getElementById('start-overlay');
         overlay.classList.add('blur-out-active');
         setTimeout(() => {
@@ -607,12 +620,9 @@
         }, 1400);
     }
 
-    // --- NEW HELPER: AUDIO FADE IN ---
     function playWithFade(key, maxVol = 1.0) {
         if(key === 'open' || key === 'intro' || key === 'bgm-song' || key === 'uke-song') {
-            // Khusus lagu
-            // Logic fade in manual akan diterapkan di tempat pemanggilan
-            AudioSys.play(key); // Fallback ke beep/sfx biasa
+            AudioSys.play(key); 
         } else {
             AudioSys.play(key);
         }
@@ -631,7 +641,7 @@
                     } else {
                         clearInterval(interval);
                     }
-                }, 100); // 2 detik fade in
+                }, 100); 
             }).catch(e => console.log("Audio autoplay blocked", e));
         }
     }
@@ -704,7 +714,6 @@
     }
 
     function updateHearts(val, isGold = false) {
-        // GOLD LOGIC
         if (isGold) {
             state.hearts += val;
             UI.hearts.innerText = state.hearts;
@@ -726,27 +735,28 @@
             return;
         }
 
-        const targetRect = UI.hearts.getBoundingClientRect();
+        const targetRect = UI.heartIcon.getBoundingClientRect();
         const targetX = targetRect.left + (targetRect.width/2);
         const targetY = targetRect.top + (targetRect.height/2);
 
         if (val > 0) {
-            // POP UP BIG AT CENTER
             const fly = document.createElement('div');
             fly.className = 'flying-heart';
             fly.innerText = '❤️';
             document.body.appendChild(fly);
 
             requestAnimationFrame(() => {
-                fly.style.transform = 'translate(-50%, -50%) scale(1.2)'; 
+                fly.style.transform = 'translate(-50%, -50%) scale(1.5)'; 
+                fly.style.opacity = '1';
             });
 
             setTimeout(() => {
-                fly.style.left = targetX + 'px'; 
-                fly.style.top = targetY + 'px'; 
-                fly.style.transform = 'translate(-50%, -50%) scale(0.2)'; 
-                fly.style.opacity = '0';
-            }, 800); 
+                fly.style.transition = 'all 0.8s ease-in-out';
+                fly.style.left = targetX + 'px';
+                fly.style.top = targetY + 'px';
+                fly.style.transform = 'translate(-50%, -50%) scale(0.2)';
+                fly.style.opacity = '0.5';
+            }, 1000);
 
             setTimeout(() => {
                 fly.remove();
@@ -754,17 +764,17 @@
                 UI.hearts.innerText = state.hearts;
                 AudioSys.play('levelup');
                 UI.heartIcon.classList.add('heart-pump');
-                spawnFloatText(`+${val}`, targetX, targetY + 20, '#4cd964');
+                spawnFloatText(`+${val}`, targetX, targetY + 30, '#4cd964');
                 setTimeout(()=>UI.heartIcon.classList.remove('heart-pump'), 300);
-            }, 1800); 
+            }, 1800);
         } else {
-            // SUBTRACT
             AudioSys.play('break');
             UI.heartIcon.classList.add('heart-broken');
             const drop = document.createElement('div');
             drop.className = 'falling-heart';
             drop.innerText = '💔';
-            drop.style.left = targetX + 'px'; drop.style.top = targetY + 'px';
+            drop.style.left = targetX + 'px';
+            drop.style.top = targetY + 'px';
             document.body.appendChild(drop);
             
             setTimeout(() => {
@@ -772,7 +782,7 @@
                 UI.hearts.innerText = state.hearts;
                 UI.heartIcon.classList.remove('heart-broken');
                 drop.remove();
-                spawnFloatText(`${val}`, targetX, targetY + 20, 'red');
+                spawnFloatText(`${val}`, targetX, targetY + 30, 'red');
             }, 1000);
         }
     }
@@ -856,13 +866,11 @@
             await poetChat("Ehem ehem... 🎤");
             
             if(s1) {
-                // Mainkan Lagu 1 dengan Fade In
                 playAudioFadeIn('uke-song', 1.0);
                 
-                // EVENT: LAGU 1 SELESAI -> JEDA 2s -> LAGU 2 MAIN
                 s1.onended = function() {
                     setTimeout(() => {
-                        playAudioFadeIn('bgm-song', 0.5); // Lagu 2 masuk halus
+                        playAudioFadeIn('bgm-song', 0.5); 
                     }, 2000);
                 };
             }
@@ -875,7 +883,6 @@
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            // LANGSUNG MAIN LAGU 2 (FADE IN)
             playAudioFadeIn('bgm-song', 0.5);
             
             q2();
@@ -1087,7 +1094,6 @@
         cMsg.innerText = "Semoga doa yang u harapkan tercapai, apapun itu";
         cOverlay.style.opacity = 1;
 
-        // REVISI: JEDA JADI 4 DETIK
         await new Promise(r=>setTimeout(r, 4000));
         cOverlay.style.opacity = 0; 
         
