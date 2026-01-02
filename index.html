@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Poet & The Princess</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Urbanist:wght@300;400;600;700&family=Dancing+Script:wght@600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --midnight-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            --newyear-grad: linear-gradient(to bottom, #10002b, #240046, #3c096c);
+            --golden-grad: radial-gradient(circle at center, #0f1c2e 0%, #020202 100%);
+            --poet-bg: rgba(255, 255, 255, 0.08);
+            --princess-bg: rgba(100, 255, 218, 0.15);
+            --gold: #FFD700;
+            --text-narrative: #FFE066;
+            --glass-border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: radial-gradient(circle at center, #1a2a3a 0%, #000000 100%);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Urbanist', sans-serif;
+            overflow: hidden; color: white;
+            perspective: 1000px;
+            transition: background 2s ease;
+        }
+
+        /* LAYERS */
+        #global-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 999; opacity: 0; transition: opacity 2s; }
+        #firework-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 1.5s; }
+        #firefly-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 3; opacity: 0; transition: opacity 2s; }
+        #confetti-canvas { z-index: 9999; pointer-events: none; position: fixed; top:0; left:0; width:100%; height:100%; }
+        
+        #transition-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 10000;
+            pointer-events: none; opacity: 1; transition: opacity 2s ease-in-out;
+        }
+
+        /* 2026 TEXT CINEMATIC */
+        #year-text {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-family: 'Cinzel', serif; font-size: 5rem; color: var(--gold);
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+            z-index: 50; opacity: 0; pointer-events: none; letter-spacing: 15px;
+            text-align: center;
+        }
+        .reveal-year { animation: blurFocus 6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        @keyframes blurFocus {
+            0% { opacity: 0; filter: blur(30px); transform: translate(-50%, -50%) scale(1.5); }
+            30% { opacity: 1; filter: blur(0px); transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; filter: blur(0px); transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; filter: blur(20px); transform: translate(-50%, -50%) scale(1.2); }
+        }
+        /* Animasi ganti teks (flash dikit) */
+        .switch-text-anim { animation: textSwitch 4s forwards; }
+        @keyframes textSwitch {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); filter: blur(10px); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); filter: blur(0px); text-shadow: 0 0 50px gold; }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0px); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); filter: blur(20px); }
+        }
+
+        /* CINEMATIC TEXT OVERLAY (Final Wish) */
+        #cinematic-text-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; pointer-events: none; opacity: 0;
+            transition: opacity 1.5s ease;
+            background: rgba(0,0,0,0.4);
+        }
+        .cinematic-msg {
+            font-family: 'Playfair Display', serif; font-size: 2rem; color: #fff;
+            text-align: center; text-shadow: 0 0 20px gold; max-width: 80%;
+            line-height: 1.5;
+        }
+
+        /* IDENTITY OVERLAY (GLASS) */
+        #identity-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 5000; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 1s ease;
+        }
+        .id-box {
+            text-align: center; width: 80%; max-width: 400px;
+        }
+        .id-title { font-family: 'Cinzel'; font-size: 2rem; color: var(--gold); margin-bottom: 20px; text-shadow: 0 0 10px black; }
+        .id-input { 
+            width: 100%; padding: 15px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.5); color: white; text-align: center; font-size: 1.2rem; outline: none;
+            font-family: 'Urbanist'; margin-bottom: 20px;
+        }
+        .id-btn {
+            padding: 12px 40px; background: var(--gold); color: black; border: none; border-radius: 30px;
+            font-weight: bold; cursor: pointer; font-family: 'Cinzel'; font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        .id-btn:active { transform: scale(0.95); }
+
+        /* GOLDEN PROMISE TITLE */
+        .golden-title {
+            font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold);
+            text-align: center; margin-bottom: 10px;
+            opacity: 0; animation: aestheticReveal 3s forwards;
+            text-shadow: 0 0 15px var(--gold);
+        }
+        .golden-subtitle {
+            font-family: 'Urbanist', sans-serif; font-size: 0.9rem; color: #ccc;
+            text-align: center; margin-bottom: 30px; letter-spacing: 1px;
+            opacity: 0; animation: aestheticReveal 3s forwards 1s;
+        }
+
+        /* CARD CHOICES */
+        .card-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+        .promise-card {
+            background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px; padding: 20px 15px; width: 100px; height: 130px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; transition: all 0.4s ease; text-align: center;
+            backdrop-filter: blur(4px); opacity: 0; animation: cardPop 0.8s forwards;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .promise-card:nth-child(1) { animation-delay: 0.5s; }
+        .promise-card:nth-child(2) { animation-delay: 0.8s; }
+        .promise-card:nth-child(3) { animation-delay: 1.1s; }
+        .promise-card:hover { transform: translateY(-10px) scale(1.05); background: rgba(255,215,0,0.15); box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); border-color: var(--gold); }
+        .promise-card .icon { font-size: 2.2rem; margin-bottom: 10px; filter: drop-shadow(0 0 5px gold); }
+        .promise-card .label { font-family: 'Cinzel'; font-size: 0.75rem; color: #fff; letter-spacing: 1px; }
+        
+        @keyframes cardPop { 0% { transform: scale(0.8) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+        @keyframes aestheticReveal { 0% { opacity: 0; filter: blur(10px); } 100% { opacity: 1; filter: blur(0px); } }
+        @keyframes aestheticVanish { 0% { opacity: 1; filter: blur(0px); transform: scale(1); } 100% { opacity: 0; filter: blur(30px); transform: scale(1.2); } }
+
+        /* RED FLASH & SOS */
+        #red-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 0, 0, 0.5); z-index: 9000;
+            pointer-events: none; opacity: 0; transition: opacity 0.1s;
+        }
+        .flash-active { opacity: 1 !important; }
+
+        #sos-layer { 
+            position: absolute; top:0; left:0; width:100%; height:100%; 
+            opacity:0; pointer-events:none; z-index:50; mix-blend-mode: overlay; 
+        }
+        @keyframes sosFlash { 
+            0% { opacity:0; background: rgba(255,0,0,0.6); } 
+            50% { opacity:0.8; background: linear-gradient(45deg, rgba(255,0,0,0.6), rgba(0,0,255,0.6)); }
+            100% { opacity:0; background: rgba(0,0,255,0.6); }
+        }
+
+        /* NOTIFIKASI */
+        #notification {
+            position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8); border: 1px solid var(--gold);
+            padding: 15px 25px; border-radius: 30px;
+            color: var(--gold); font-family: 'Cinzel'; font-weight: bold;
+            z-index: 10001; opacity: 0; pointer-events: none;
+            transition: opacity 0.5s, transform 0.5s;
+            text-align: center; line-height: 1.4;
+        }
+        .show-notif { opacity: 1 !important; transform: translate(-50%, 0) !important; }
+
+        /* LETTER CARD */
+        .letter-card {
+            background: #fff; color: #111; padding: 25px; border-radius: 4px;
+            width: 90%; max-width: 350px; margin: 20px auto;
+            font-family: 'Dancing Script', cursive; font-size: 1.4rem;
+            box-shadow: 0 0 30px rgba(255,255,255,0.15);
+            transform: rotate(-1deg); opacity: 0;
+            animation: cardIn 1.5s forwards;
+        }
+        @keyframes cardIn { from { opacity:0; transform:translateY(30px) rotate(3deg); } to { opacity:1; transform:translateY(0) rotate(-1deg); } }
+
+        /* HEART ANIMATION FIX */
+        .flying-heart {
+            position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 4rem; z-index: 9999; pointer-events: none;
+            transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+            opacity: 1;
+        }
+        .falling-heart {
+            position: fixed; z-index: 9999; font-size: 2rem; pointer-events: none;
+            animation: dropDown 1s ease-in forwards; opacity: 1; filter: grayscale(100%);
+        }
+        @keyframes dropDown { to { top: 100%; opacity: 0; transform: rotate(45deg); } }
+
+        /* FRAME HP */
+        #mobile-frame {
+            width: 100%; max-width: 450px; height: 100%;
+            background: var(--midnight-grad);
+            position: relative; display: flex; flex-direction: column;
+            box-shadow: 0 0 100px rgba(0,0,0,0.9);
+            border-left: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            overflow: hidden; opacity: 0; transition: opacity 2s ease, background 2s ease;
+            z-index: 10;
+            backdrop-filter: blur(0px); 
+        }
+        .frame-glass-mode {
+            background: rgba(20, 0, 50, 0.4) !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .shake-hard { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+
+        .header {
+            padding: 20px 25px; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); border-bottom: var(--glass-border); z-index: 20;
+        }
+        .header-title { font-family: 'Cinzel', serif; color: var(--gold); letter-spacing: 2px; font-weight: 700; }
+        .heart-counter { font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        #heart-icon { transition: transform 0.3s; }
+        .heart-pump { transform: scale(1.5); filter: drop-shadow(0 0 15px red); }
+        .heart-broken { filter: grayscale(100%); transform: scale(0.8); }
+
+        #chat-content {
+            flex: 1; overflow-y: auto; padding: 25px 20px;
+            display: flex; flex-direction: column; gap: 20px; z-index: 10;
+            padding-bottom: 50px; transition: opacity 1s ease;
+        }
+        #chat-content::-webkit-scrollbar { display: none; }
+
+        .dialog-container {
+            display: flex; flex-direction: column; max-width: 85%;
+            opacity: 0; transform: scale(0.9) translateY(10px);
+            animation: elasticPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes elasticPop { to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        .dialog-label { font-family: 'Cinzel', serif; font-size: 0.7rem; margin-bottom: 4px; font-weight: 700; opacity: 0.8; margin-left: 4px; }
+        .dialog-box {
+            padding: 14px 18px; border-radius: 18px; font-size: 1rem; line-height: 1.5;
+            backdrop-filter: blur(10px); border: var(--glass-border);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .poet-container { align-self: flex-start; }
+        .poet-container .dialog-label { color: #a8b2d1; }
+        .poet-container .dialog-box { background: var(--poet-bg); color: #eef2ff; border-top-left-radius: 2px; }
+
+        .princess-container { align-self: flex-end; align-items: flex-end; }
+        .princess-container .dialog-label { color: #64ffda; margin-right: 4px; }
+        .princess-container .dialog-box { background: var(--princess-bg); color: #ffffff; border-top-right-radius: 2px; text-align: right; }
+
+        .narrative {
+            align-self: center; text-align: center;
+            font-family: 'Cinzel', serif; color: var(--text-narrative);
+            font-size: 0.95rem; margin: 15px 0; max-width: 90%;
+            padding: 8px 15px;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.6), transparent);
+            opacity: 0; transform: translateY(10px);
+            animation: fadeInNarrative 1s ease forwards;
+        }
+        @keyframes fadeInNarrative { to { opacity: 1; transform: translateY(0); } }
+
+        #input-area {
+            padding: 20px; background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: var(--glass-border); min-height: 80px; z-index: 20;
+            display: flex; flex-direction: column; gap: 10px;
+            transition: opacity 0.5s ease;
+        }
+
+        .choice-btn {
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            padding: 14px; border-radius: 12px; color: white; text-align: center;
+            cursor: pointer; transition: 0.2s; font-size: 0.95rem;
+            opacity: 0; transform: translateY(10px); animation: slideUp 0.4s forwards;
+        }
+        .choice-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.98); }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+        .input-wrap { display: flex; gap: 10px; width: 100%; animation: slideUp 0.4s forwards; }
+        .text-input {
+            flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--gold);
+            padding: 12px; color: white; border-radius: 8px; outline: none; font-size: 1rem;
+        }
+        .text-input.error-shake { border-color: red; animation: shake 0.4s; background: rgba(255,0,0,0.1); }
+        .send-btn { background: var(--gold); border: none; width: 45px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        .gold-pop {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0);
+            font-size: 6rem; z-index: 10000; pointer-events: none;
+            filter: drop-shadow(0 0 20px gold);
+            animation: goldBoom 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+        @keyframes goldBoom {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            20% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            100% { top: 5%; left: 90%; transform: scale(0); opacity: 0; }
+        }
+        .float-text { position: fixed; z-index: 10000; font-weight: bold; font-size: 1.5rem; text-shadow: 0 0 5px black; pointer-events: none; animation: floatFade 1s forwards; }
+        @keyframes floatFade { to { opacity: 0; transform: translateY(-30px); } }
+
+        /* START OVERLAY */
+        #start-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .blur-out-active { animation: aestheticVanish 1.5s cubic-bezier(0.64, 0, 0.78, 0) forwards !important; }
+
+        .title-cinematic {
+            font-family: 'Cinzel'; font-size: 2.5rem; color: var(--gold); text-align: center;
+            opacity: 0; animation: aestheticReveal 2s cubic-bezier(0.22, 1, 0.36, 1) forwards 0.5s;
+            text-shadow: 0 0 20px var(--gold);
+        }
+        .start-btn-cinematic {
+            margin-top:40px; padding:15px 40px; background:var(--gold); border:none; 
+            font-family:'Cinzel'; cursor:pointer; font-size: 1.1rem; color: black; font-weight: bold;
+            opacity: 0; animation: aestheticReveal 2s cubic-bezier(0.22, 1, 0.36, 1) forwards 0.8s;
+        }
+
+        #click-catcher {
+            position: fixed; top:0; left:0; width:100%; height:100%; background: black; z-index: 10002;
+            display: flex; justify-content: center; align-items: center; color: #555;
+            font-family: 'Urbanist'; font-size: 0.8rem; letter-spacing: 2px; cursor: pointer;
+        }
+
+        /* RESULT SCREEN (HIDDEN INITIALLY) */
+        #result-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--result-grad); z-index: 500;
+            display: none; 
+            flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 2s ease; text-align: center; padding: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="uke-song" src="lagu.mp3" preload="auto"></audio>
+    <audio id="bgm-song" src="lagu2.mp3" preload="auto" loop></audio>
+
+    <canvas id="global-canvas"></canvas> <canvas id="firework-canvas"></canvas> <canvas id="firefly-canvas"></canvas> <canvas id="confetti-canvas"></canvas>
+    
+    <div id="transition-overlay"></div>
+    <div id="red-screen"></div>
+    <div id="notification"></div>
+    <div id="year-text">2026</div>
+
+    <div id="cinematic-text-overlay">
+        <div class="cinematic-msg" id="cinematic-msg"></div>
+    </div>
+
+    <div id="identity-overlay">
+        <div class="id-box">
+            <div class="id-title">Siapa Kamu?</div>
+            <input type="text" id="id-input" class="id-input" placeholder="Ketik nama..." autocomplete="off">
+            <button class="id-btn" onclick="verifyIdentity()">Verifikasi</button>
+        </div>
+    </div>
+
+    <div id="click-catcher" onclick="initAudioAndIntro()">[ TAP TO START ]</div>
+
+    <div id="result-screen" style="display: none;">
+        <h1 style="font-family:'Cinzel'; color:var(--gold); font-size:3rem; margin-bottom:10px; text-shadow: 0 0 20px var(--gold);">THE END</h1>
+        
+        <div class="score-box">
+            <div class="score-row" id="row-red">
+                <span>Hearts Collected</span>
+                <span id="val-red" style="font-weight:bold;">0</span>
+            </div>
+            <div class="score-row" id="row-white">
+                <span>Silver Lining (SOS)</span>
+                <span id="val-white" style="font-weight:bold;">...</span>
+            </div>
+            <div class="score-row" id="row-gold">
+                <span>Golden Promise</span>
+                <span id="val-gold" style="font-weight:bold;">...</span>
+            </div>
+            <div class="score-row score-total" id="row-total">
+                <span>TOTAL SCORE</span>
+                <span id="val-total">0 / 10</span>
+            </div>
+        </div>
+
+        <p id="result-msg" style="font-family:'Urbanist'; font-size:1.1rem; max-width:80%; line-height:1.6; margin-bottom:40px; letter-spacing: 1px; min-height:60px;"></p>
+        <button onclick="location.reload()" style="padding:15px 50px; background:transparent; border:2px solid var(--gold); color:var(--gold); font-family:'Cinzel'; cursor:pointer; font-size: 1rem; transition: 0.3s; box-shadow: 0 0 15px rgba(255,215,0,0.3);">ULANGI KISAH</button>
+    </div>
+
+    <div id="start-overlay">
+        <h1 class="title-cinematic">The Poet &<br>The Princess</h1>
+        <button class="start-btn-cinematic" onclick="enterGame()">MULAI KISAH</button>
+    </div>
+
+    <div id="mobile-frame">
+        <div class="header">
+            <span class="header-title">The Poet</span>
+            <div class="heart-counter">
+                <span id="heart-icon">❤️</span> <span id="heart-count">0</span> <span id="inventory"></span>
+            </div>
+        </div>
+
+        <div id="sos-layer"></div>
+        <div id="chat-content"></div>
+        <div id="input-area"></div>
+    </div>
+
+<script>
+    // --- AUDIO SYSTEM ---
+    const AudioSys = {
+        ctx: null,
+        init: function() {
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
+        },
+        play: function(key) {
+            if(!this.ctx) return;
+            const t = this.ctx.currentTime;
+            const o = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            o.connect(g); g.connect(this.ctx.destination);
+
+            if(key === 'intro') { 
+                o.type = 'sine'; o.frequency.setValueAtTime(60, t); 
+                g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4, t + 2); g.gain.exponentialRampToValueAtTime(0.001, t + 6);
+                o.start(t); o.stop(t+6);
+                setTimeout(() => {
+                    const o2 = this.ctx.createOscillator(); const g2 = this.ctx.createGain();
+                    o2.type='triangle'; o2.frequency.value=120; o2.connect(g2); g2.connect(this.ctx.destination);
+                    g2.gain.setValueAtTime(0, t); g2.gain.linearRampToValueAtTime(0.1, t+2); g2.gain.linearRampToValueAtTime(0, t+5);
+                    o2.start(t); o2.stop(t+5);
+                }, 100);
+            }
+            else if(key === 'open') {
+                const now = t;
+                [440, 554.37, 659.25, 880].forEach((freq, i) => { 
+                    const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                    osc.type = 'sine'; osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.15 / (i+1), now + 0.5); gain.gain.exponentialRampToValueAtTime(0.001, now + 3.0); 
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(now); osc.stop(now + 3.5);
+                });
+            }
+            else if(key === 'type') { 
+                o.type = 'triangle'; o.frequency.setValueAtTime(400 + Math.random()*100, t);
+                g.gain.setValueAtTime(0.03, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.05);
+                o.start(t); o.stop(t+0.05);
+            } 
+            else if(key === 'sent') { 
+                o.type = 'sine'; o.frequency.setValueAtTime(300, t); o.frequency.exponentialRampToValueAtTime(800, t+0.15);
+                g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.15);
+                o.start(t); o.stop(t+0.15);
+            }
+            else if(key === 'narrator') { 
+                o.type = 'sine'; o.frequency.setValueAtTime(800, t); 
+                g.gain.setValueAtTime(0.05, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.2);
+                o.start(t); o.stop(t+0.2);
+            }
+            else if(key === 'system') { 
+                o.type = 'square'; o.frequency.setValueAtTime(400, t); g.gain.setValueAtTime(0.05, t);
+                o.start(t); o.stop(t+0.1);
+                setTimeout(()=>{
+                    let o2=this.ctx.createOscillator(); let g2=this.ctx.createGain(); o2.type='square'; o2.frequency.value=600; 
+                    o2.connect(g2); g2.connect(this.ctx.destination); g2.gain.value=0.05; o2.start(t+0.15); o2.stop(t+0.3);
+                },200);
+            }
+            else if(key === 'levelup') { 
+                const now = t;
+                [600, 800, 1000].forEach((f, i) => {
+                    let osc = this.ctx.createOscillator(); osc.type='sine'; osc.frequency.value=f;
+                    let gn = this.ctx.createGain(); osc.connect(gn); gn.connect(this.ctx.destination);
+                    gn.gain.setValueAtTime(0, now + i*0.1); gn.gain.linearRampToValueAtTime(0.08, now + i*0.1 + 0.05); gn.gain.linearRampToValueAtTime(0, now + i*0.1 + 0.3);
+                    osc.start(now + i*0.1); osc.stop(now + i*0.1 + 0.3);
+                });
+            }
+            else if(key === 'heaven') { 
+                [261, 329, 392, 523].forEach((f,i) => {
+                    let osc = this.ctx.createOscillator(); osc.type='triangle'; osc.frequency.value=f;
+                    let gn = this.ctx.createGain(); osc.connect(gn); gn.connect(this.ctx.destination);
+                    gn.gain.setValueAtTime(0,t); gn.gain.linearRampToValueAtTime(0.05,t+0.1+i*0.1); gn.gain.linearRampToValueAtTime(0,t+4);
+                    osc.start(t); osc.stop(t+4);
+                });
+            }
+            else if(key === 'break') {
+                o.type = 'sawtooth'; o.frequency.setValueAtTime(150, t); o.frequency.linearRampToValueAtTime(50, t+0.4);
+                g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.4);
+                o.start(t); o.stop(t+0.4);
+            }
+            else if(key === 'error') {
+                o.type = 'square'; o.frequency.setValueAtTime(100, t);
+                g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.2);
+                o.start(t); o.stop(t+0.2);
+            }
+            else if(key === 'siren') { 
+                o.type = 'sawtooth'; 
+                o.frequency.setValueAtTime(600, t); o.frequency.linearRampToValueAtTime(900, t+0.3); o.frequency.linearRampToValueAtTime(600, t+0.6);
+                g.gain.value = 0.08; o.start(t); o.stop(t+3);
+            }
+            else if(key === 'trail') { 
+                o.type = 'sine'; o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(800, t+1);
+                g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+1);
+                o.start(t); o.stop(t+1);
+            }
+            else if(key === 'firework') { 
+                const bufferSize = this.ctx.sampleRate * 1.5; const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0); for(let i=0; i<bufferSize; i++) data[i] = (Math.random()*2-1) * Math.exp(-3*i/this.ctx.sampleRate);
+                const noise = this.ctx.createBufferSource(); noise.buffer = buffer;
+                const filter = this.ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 800;
+                noise.connect(filter); filter.connect(g); g.connect(this.ctx.destination);
+                g.gain.setValueAtTime(0.4, t); g.gain.exponentialRampToValueAtTime(0.001, t+1.2);
+                noise.start(t);
+            }
+            else if(key === 'confetti') {
+                const bufferSize = this.ctx.sampleRate * 0.5; const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0); for(let i=0; i<bufferSize; i++) data[i] = Math.random()*2-1;
+                const noise = this.ctx.createBufferSource(); noise.buffer = buffer;
+                const ng = this.ctx.createGain(); noise.connect(ng); ng.connect(this.ctx.destination);
+                ng.gain.setValueAtTime(0.2, t); ng.gain.exponentialRampToValueAtTime(0.001, t+0.3);
+                noise.start(t);
+            }
+            else if(key === 'trumpet') {
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                    let osc = this.ctx.createOscillator(); osc.type='sawtooth'; osc.frequency.value=f;
+                    let gn = this.ctx.createGain(); osc.connect(gn); gn.connect(this.ctx.destination);
+                    gn.gain.setValueAtTime(0,t); gn.gain.linearRampToValueAtTime(0.1, t + 0.05); gn.gain.linearRampToValueAtTime(0, t + 2.0);
+                    osc.start(t); osc.stop(t+2.0);
+                });
+            }
+        }
+    };
+
+    // --- INIT ---
+    const UI = {
+        chat: document.getElementById('chat-content'),
+        input: document.getElementById('input-area'),
+        hearts: document.getElementById('heart-count'),
+        heartIcon: document.getElementById('heart-icon'),
+        inv: document.getElementById('inventory'),
+        sos: document.getElementById('sos-layer'),
+        frame: document.getElementById('mobile-frame'),
+        notif: document.getElementById('notification'),
+        redScreen: document.getElementById('red-screen'),
+        yearText: document.getElementById('year-text'),
+        bgCanvas: document.getElementById('global-canvas'),
+        fwCanvas: document.getElementById('firework-canvas'),
+        ffCanvas: document.getElementById('firefly-canvas'),
+        result: document.getElementById('result-screen'),
+        cinematicOverlay: document.getElementById('cinematic-text-overlay'),
+        cinematicMsg: document.getElementById('cinematic-msg'),
+        idOverlay: document.getElementById('identity-overlay'),
+        idInput: document.getElementById('id-input'),
+        rRed: document.getElementById('val-red'),
+        rWhite: document.getElementById('val-white'),
+        rGold: document.getElementById('val-gold'),
+        rTotal: document.getElementById('val-total'),
+        rowRed: document.getElementById('row-red'),
+        rowWhite: document.getElementById('row-white'),
+        rowGold: document.getElementById('row-gold'),
+        rowTotal: document.getElementById('row-total')
+    };
+    
+    let state = { hearts: 0, gold: false, white: false };
+    let isSnowing = false;
+    let isFireworks = false;
+    let isFireflies = false;
+    let fireworkCount = 0;
+
+    window.onload = () => { document.getElementById('transition-overlay').style.opacity = 0; }
+
+    function initAudioAndIntro() {
+        document.getElementById('click-catcher').style.display = 'none';
+        AudioSys.init();
+        AudioSys.play('intro');
+        document.getElementById('start-overlay').style.display = 'flex';
+    }
+
+    function enterGame() {
+        AudioSys.play('open');
+        const overlay = document.getElementById('start-overlay');
+        overlay.classList.add('blur-out-active');
+        setTimeout(() => {
+            UI.frame.style.opacity = 1;
+            overlay.remove();
+            runScript();
+        }, 1400);
+    }
+
+    function scrollDown() { UI.chat.scrollTop = UI.chat.scrollHeight; }
+
+    // --- GAME ENGINE ---
+    function poetChat(text, speed = 45) {
+        return new Promise(resolve => {
+            UI.input.innerHTML = ''; 
+            const div = document.createElement('div');
+            div.className = 'dialog-container poet-container';
+            div.innerHTML = `<div class="dialog-label">Penyair</div><div class="dialog-box"></div>`;
+            UI.chat.appendChild(div);
+            
+            const box = div.querySelector('.dialog-box');
+            let i = 0;
+            const int = setInterval(() => {
+                box.textContent += text.charAt(i);
+                AudioSys.play('type');
+                scrollDown();
+                i++;
+                if(i>=text.length) { clearInterval(int); setTimeout(resolve, 600 + text.length*10); } 
+            }, speed);
+        });
+    }
+
+    function princessChat(text) {
+        const div = document.createElement('div');
+        div.className = 'dialog-container princess-container';
+        div.innerHTML = `<div class="dialog-label">Tuan Putri</div><div class="dialog-box">${text}</div>`;
+        UI.chat.appendChild(div);
+        AudioSys.play('sent'); 
+        scrollDown();
+    }
+
+    function addNarrative(text) {
+        return new Promise(resolve => {
+            const div = document.createElement('div');
+            div.className = 'narrative';
+            div.innerHTML = text;
+            UI.chat.appendChild(div);
+            AudioSys.play('narrator');
+            scrollDown();
+            setTimeout(resolve, 2000);
+        });
+    }
+
+    function showInput(ph, cb) {
+        UI.input.innerHTML = `<div class="input-wrap"><input type="text" id="userInput" class="text-input" placeholder="${ph}" autocomplete="off"><button class="send-btn" onclick="subIn()">></button></div>`;
+        document.getElementById('userInput').focus();
+        scrollDown();
+        window.subIn = function() {
+            const el = document.getElementById('userInput');
+            cb(el.value, el);
+        }
+    }
+
+    function showOptions(opts) {
+        UI.input.innerHTML = '';
+        opts.forEach((o,i) => {
+            const btn = document.createElement('div');
+            btn.className = 'choice-btn';
+            btn.innerText = o.text;
+            btn.style.animationDelay = `${i*0.1}s`;
+            btn.onclick = () => { UI.input.innerHTML=''; o.action(); };
+            UI.input.appendChild(btn);
+        });
+        scrollDown();
+    }
+
+    function updateHearts(val, isGold = false) {
+        // GOLD LOGIC
+        if (isGold) {
+            state.hearts += val;
+            UI.hearts.innerText = state.hearts;
+            AudioSys.play('heaven');
+            state.gold = true;
+            const goldPop = document.createElement('div');
+            goldPop.className = 'gold-pop';
+            goldPop.innerText = '💛';
+            document.body.appendChild(goldPop);
+            UI.notif.innerText = "✨ You found a Golden Heart ✨";
+            UI.notif.classList.add('show-notif');
+            setTimeout(() => UI.notif.classList.remove('show-notif'), 3000);
+            setTimeout(() => {
+                goldPop.remove();
+                AudioSys.play('levelup');
+                UI.inv.innerHTML += "💛";
+                spawnFloatText("+GOLD", window.innerWidth/2, window.innerHeight/2, 'gold');
+            }, 2000);
+            return;
+        }
+
+        const targetRect = UI.hearts.getBoundingClientRect();
+        const targetX = targetRect.left + (targetRect.width/2);
+        const targetY = targetRect.top + (targetRect.height/2);
+
+        if (val > 0) {
+            // POP UP BIG AT CENTER
+            const fly = document.createElement('div');
+            fly.className = 'flying-heart';
+            fly.innerText = '❤️';
+            document.body.appendChild(fly);
+
+            // Pop animation done via CSS scale(0) -> scale(1)
+            // Wait slightly then fly
+            requestAnimationFrame(() => {
+                fly.style.transform = 'translate(-50%, -50%) scale(1.2)'; // Pop Big
+            });
+
+            setTimeout(() => {
+                // Fly to target
+                fly.style.left = targetX + 'px'; 
+                fly.style.top = targetY + 'px'; 
+                fly.style.transform = 'translate(-50%, -50%) scale(0.2)'; 
+                fly.style.opacity = '0';
+            }, 800); // Wait 0.8s before flying
+
+            setTimeout(() => {
+                fly.remove();
+                state.hearts += val;
+                UI.hearts.innerText = state.hearts;
+                AudioSys.play('levelup');
+                UI.heartIcon.classList.add('heart-pump');
+                spawnFloatText(`+${val}`, targetX, targetY + 20, '#4cd964');
+                setTimeout(()=>UI.heartIcon.classList.remove('heart-pump'), 300);
+            }, 1800); // 0.8s wait + 1s fly
+        } else {
+            // SUBTRACT
+            AudioSys.play('break');
+            UI.heartIcon.classList.add('heart-broken');
+            const drop = document.createElement('div');
+            drop.className = 'falling-heart';
+            drop.innerText = '💔';
+            drop.style.left = targetX + 'px'; drop.style.top = targetY + 'px';
+            document.body.appendChild(drop);
+            
+            // DELAY UPDATE (1 detik)
+            setTimeout(() => {
+                state.hearts += val;
+                UI.hearts.innerText = state.hearts;
+                UI.heartIcon.classList.remove('heart-broken');
+                drop.remove();
+                spawnFloatText(`${val}`, targetX, targetY + 20, 'red');
+            }, 1000);
+        }
+    }
+
+    function spawnFloatText(text, x, y, color) {
+        const el = document.createElement('div');
+        el.className = 'float-text'; el.innerText = text; el.style.color = color;
+        el.style.left = x + 'px'; el.style.top = y + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    // --- PHASE 1: GAME CORE ---
+    async function runScript() {
+        await new Promise(r=>setTimeout(r,1000));
+        await addNarrative("Kamu berjalan di tengah taman...");
+        await addNarrative("Kamu menemukan ukulele di kursi taman.");
+        showOptions([{ text: "[Ambil] ✋", action: sceneUkulele }, { text: "[Percayakan keputusan pada hatimu] ✨", action: sceneUkulele }]);
+    }
+
+    async function sceneUkulele() {
+        await addNarrative("Kamu mengambil Ukulele.");
+        await addNarrative("Jreng Jreng Jreng... (Petikan Ukulele yang sangat buruk)");
+        await poetChat("WEH, Ukulele gw!");
+        await poetChat("Kalo mau nyuri seengganya bisa mainin!");
+        await poetChat("Bentar... kamu kayak ga asing.");
+        await poetChat("Siapa kamu?");
+        askName();
+    }
+
+    function askName() {
+        UI.idOverlay.style.display = 'flex';
+        setTimeout(() => UI.idOverlay.style.opacity = 1, 10);
+    }
+
+    function verifyIdentity() {
+        const val = document.getElementById('id-input').value.toLowerCase();
+        const keys = ['aksa', 'cila', 'cilla', 'priscilla', 'tante', 'ayang', 'sayang', 'pacar', 'kaka', 'kakak', 'kak', 'nanda', 'putri', 'tuan'];
+        
+        if(keys.some(k=>val.includes(k))) {
+            AudioSys.play('heaven');
+            UI.idOverlay.style.opacity = 0;
+            setTimeout(() => {
+                UI.idOverlay.style.display = 'none';
+                proceed();
+            }, 1000);
+        } else {
+            AudioSys.play('error');
+            const box = document.querySelector('.id-box');
+            box.classList.add('shake-hard');
+            // Flash Red
+            document.getElementById('red-screen').classList.add('flash-active');
+            setTimeout(()=> {
+                box.classList.remove('shake-hard');
+                document.getElementById('red-screen').classList.remove('flash-active');
+            }, 400);
+            
+            document.getElementById('id-input').value = '';
+            document.getElementById('id-input').placeholder = "Salah orang...";
+        }
+    }
+
+    async function proceed() {
+        await poetChat("Eh kirain siapa, ternyata Tuan Putri");
+        await addNarrative("Heart System Activated ❤️", 'system');
+        updateHearts(1);
+        await poetChat("Lama ga ketemu yaa");
+        await poetChat("Udah deket penghujung tahun ya, gak kerasa.");
+        await poetChat("Btw...");
+        await poetChat("Sini Ukulelenya gw mainin, mau denger gaa?");
+        showOptions([{ text: "Widih sok banget, emang bisa? Wkwk coba deh 😏", action: ()=>q1('A') }, { text: "Gausah, nanti malu maluin 🙄", action: ()=>q1('B') }]);
+    }
+
+    async function q1(c) {
+        UI.input.innerHTML = '';
+        if(c=='A') { 
+            const s1 = document.getElementById('uke-song');
+            const s2 = document.getElementById('bgm-song');
+            
+            princessChat("Widih sok banget, emang bisa? Wkwk coba deh 😏"); 
+            updateHearts(1); 
+            await poetChat("Yee ngeremehin 😎");
+            await poetChat("Ehem ehem... 🎤");
+            
+            if(s1) {
+                s1.currentTime = 0;
+                s1.volume = 1.0;
+                s1.play().catch(e=>{});
+                
+                // EVENT LISTENER: Kalo Lagu 1 Selesai -> Jeda 2s -> Lagu 2 Main
+                s1.onended = function() {
+                    setTimeout(() => {
+                        if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
+                    }, 2000);
+                };
+            }
+            
+            // Jeda visual sebentar (5 detik) biar seolah2 lagi siap2/mulai nyanyi
+            await new Promise(r => setTimeout(r, 5000));
+            // Lanjut chat Q2 (Lagu 1 tetep jalan di background sampe abis sendiri)
+            q2();
+        }
+        else { 
+            princessChat("Gausah, nanti malu maluin 🙄"); 
+            updateHearts(-1); 
+            await poetChat("Yaudaa yaudaaa engga gw mainin"); 
+            
+            // Pilihan B: Langsung main Lagu 2
+            const s2 = document.getElementById('bgm-song');
+            if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
+            
+            q2();
+        }
+    }
+
+    async function q2() {
+        await poetChat("Inget gak dulu u pernah pamerin mainin lagu Blue - Yung kai pake ukulele estetik u itu?");
+        showOptions([{ text: "HAHAHA si anj, inget aja loh 😂", action: ()=>q2r('A') }, { text: "Emang iya ya? i ga inget ah 🤔", action: ()=>q2r('B') }, { text: "Inget dongg, sekeren itu kan i sampe u ingett HAHAHA 😎", action: ()=>q2r('C') }]);
+    }
+
+    async function q2r(c) {
+        if(c=='A') { princessChat("HAHAHA si anj, inget aja loh 😂"); updateHearts(1); await poetChat("Siapa si yang ga inget malem-malem u gabisa tidur terus pamer skill yang u bangga-banggakan itu"); }
+        else if(c=='B') { princessChat("Emang iya ya? i ga inget ah 🤔"); updateHearts(-1); await poetChat("Yeuu kocak"); }
+        else { princessChat("Inget dongg, sekeren itu kan i sampe u ingett HAHAHA 😎"); updateHearts(2); await poetChat("woiyaaa jelas dong, gw selalu bangga punya u waktu itu wkwk"); }
+        q3();
+    }
+
+    async function q3() {
+        await poetChat("Masih sering latihan mainin gak?");
+        showOptions([{ text: "Aduh dimana yak Ukulele i, udah ketimbun debu kayanya 💀", action: ()=>q3r('A') }, { text: "MASIH DONG! i bisa mainin banyak lagu sekarang 🎸", action: ()=>q3r('B') }, { text: "Kalo gabut doang i mainin 😶", action: ()=>q3r('C') }]);
+    }
+
+    async function q3r(c) {
+        if(c=='A') { princessChat("Aduh dimana yak Ukulele i, udah ketimbun debu kayanya 💀"); updateHearts(-2); await poetChat("BERSIHIN KAMAR GAK U SEKARANG! 🔪"); await poetChat("Masih sering berantakan kayak waktu itu pasti, baju numpuk dimana-mana"); }
+        else if(c=='B') { princessChat("MASIH DONG! i bisa mainin banyak lagu sekarang 🎸"); updateHearts(2); await poetChat("Makin bangga aja lagi gw sama u"); }
+        else { princessChat("Kalo gabut doang i mainin 😶"); updateHearts(1); await poetChat("Yaudalaa, seengganya gabutnya ga buka live tiktok Batik Christo lagi"); }
+        q4();
+    }
+
+    async function q4() {
+        await poetChat("Jadi... gimana sama yang sekarang?");
+        showOptions([{ text: "Puji Tuhan, Alhamdulillah yaa aman terkendali. 😇", action: ()=>q4r('A') }, { text: "Udah engga lanjut nih 😮‍💨", action: ()=>q4r('B') }, { text: "i butuh u. 🆘", action: ()=>q4r('C') }]);
+    }
+
+    async function q4r(c) {
+        if(c=='A') { 
+            princessChat("Puji Tuhan, Alhamdulillah yaa aman terkendali. 😇"); 
+            updateHearts(1); 
+            await poetChat("Alhamdulillah, puji tuhan, semoga langgeng, lancar semua dan selalu baik-baik aja yaa, gw ikut seneng u sama bang windah"); 
+            nextFinal(); 
+        }
+        else if(c=='B') { 
+            princessChat("Udah engga lanjut nih 😮‍💨"); 
+            updateHearts(1); 
+            await poetChat("Tu kan mending sama gw anjir, wkwk"); 
+            await poetChat("Tapi ya, semoga u bisa tau ya apa yang u butuh sebenernya, karena apa yang paling u mau terkadang bukan yang sebenernya paling u butuhin"); 
+            nextFinal(); 
+        }
+        else {
+            princessChat("i butuh u. 🆘"); await poetChat("jawab yang bener");
+            showOptions([{ text: "Iya i serius loh 🥺", action: sosTrigger }, { text: "hehe maaf cuman iseng jawab gitu 😜", action: ()=>{ princessChat("hehe maaf.."); q4(); } }]);
+        }
+    }
+
+    async function sosTrigger() {
+        princessChat("Iya i serius loh 🥺"); 
+        AudioSys.play('siren');
+        state.white = true; 
+        updateHearts(1); 
+        UI.inv.innerHTML += "🤍"; 
+        
+        // SOS FLASH (Red Blue)
+        UI.sos.style.animation = "sosFlash 0.5s 3"; 
+        
+        const notif = document.getElementById('notification');
+        notif.style.borderColor = 'white'; notif.style.color = 'white';
+        notif.innerHTML = "🔔 <b>SYSTEM INFO</b><br>Nomor Penyair masih yang lama.<br>Chat aja, dia nunggu.";
+        notif.classList.add('show-notif');
+        setTimeout(() => notif.classList.remove('show-notif'), 4000);
+
+        await poetChat("RED CODE!! 🚨 Meluncurkan rudal pelukan dan ciuman sekarang juga! Bertahan di sana prajurit, bantuan datang!");
+        showOptions([ { text: "Chat Sekarang 💬", action: chatWhatsApp }, { text: "Nanti Aja Deh 🍂", action: () => { princessChat("Nanti Aja Deh 🍂"); poetChat("Okee simpen dulu aja").then(nextFinal); } } ]);
+    }
+
+    function chatWhatsApp() {
+        window.open('https://wa.me/', '_blank'); 
+        princessChat("Chat Sekarang 💬");
+        poetChat("Ditunggu notifnya ya...").then(nextFinal);
+    }
+
+    // --- PHASE 2: BRIDGE (CHRISTMAS) ---
+    async function nextFinal() {
+        await poetChat("Gw keasikan ngobrol sampe lupa nanya, gimana kabar u...?"); await poetChat("Tuan Putri.. Cilla?");
+        showOptions([{ text: "Puji Tuhan, Alhamdulillah, semua aman-aman aza ko, BEST! ✨", action: ()=>fin('A') }, { text: "Ya gitu-gitu ajaa sii 😐", action: ()=>fin('B') }, { text: "Puji Tuhan baik semuaa, tapi kangen adik penyair i 🥺💛", action: ()=>fin('C') }]);
+    }
+
+    async function fin(c) {
+        if(c=='A') { princessChat("Puji Tuhan, Alhamdulillah, semua aman-aman aza ko, BEST! ✨"); updateHearts(1); }
+        else if(c=='B') { princessChat("Ya gitu-gitu ajaa sii 😐"); updateHearts(-2); await poetChat("Niatan dikit kek jawabnyaa, yee kocak"); }
+        else { 
+            princessChat("Puji Tuhan baik semuaa, tapi kangen adik penyair i 🥺💛"); 
+            updateHearts(1, true); 
+            await addNarrative("Achievement: Happily Never After", 'heaven');
+        }
+        phaseChristmas();
+    }
+
+    async function phaseChristmas() {
+        await new Promise(r=>setTimeout(r, 1000));
+        
+        UI.chat.style.opacity = 0;
+        await new Promise(r=>setTimeout(r, 500));
+        UI.chat.innerHTML = '';
+        UI.chat.style.opacity = 1;
+
+        await poetChat("Kayanya, salju mulai turun...");
+        
+        // JEDA 4 DETIK BUAT NIKMATIN SALJU
+        await new Promise(r=>setTimeout(r, 4000));
+
+        // SALJU LANGSUNG TURUN
+        isSnowing = true;
+        UI.bgCanvas.style.opacity = 1;
+        initSnowEngine();
+        
+        await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
+        
+        // JEDA 1 DETIK
+        await new Promise(r=>setTimeout(r, 1000));
+
+        // CHAT REVISI: HAPUS YANG DIMINTA
+        const m = [
+            "Oh iyaa, Selamat Natal yaa..",
+            "Jujur, u berarti banget buat gw sebagai apapun",
+            "Bahkan sama u terakhir kali gw ngerasain punya kakak yang sesayang itu sama gw, punya seseorang yang sepeduli itu...",
+            "Tahun baru nanti, dan tahun-tahun berikutnya..",
+            "Gw selalu doain yang terbaik buat u",
+            "Selamat Natal..."
+        ];
+        // SPEED SLOW
+        for(let t of m) { await poetChat(t, 60); await new Promise(r=>setTimeout(r, 1500)); }
+
+        triggerNewYearScene();
+    }
+
+    // --- PHASE 3: NEW YEAR ---
+    async function triggerNewYearScene() {
+        await new Promise(r=>setTimeout(r, 2000));
+        UI.chat.style.opacity = 0; 
+        
+        UI.frame.style.background = "var(--newyear-grad)";
+        UI.frame.classList.add("frame-glass-mode");
+
+        isSnowing = false; 
+        UI.bgCanvas.style.opacity = 0;
+
+        await new Promise(r=>setTimeout(r, 1000));
+        
+        // REVISI: TRANSISI TEKS 2026 KE SELAMAT TAHUN BARU
+        const yTxt = UI.yearText;
+        yTxt.classList.add('reveal-year'); // Muncul "2026"
+        
+        // KEMBANG API SPESIAL
+        setTimeout(() => {
+            isFireworks = true;
+            UI.fwCanvas.style.opacity = 1;
+            initFireworkEngine();
+            // 1. Trail Center
+            launchCenterFirework();
+            
+            // SAAT MELEDAK (approx 1s travel), TEXT BERUBAH
+            setTimeout(() => {
+                yTxt.classList.remove('reveal-year');
+                yTxt.innerText = "Selamat Tahun Baru!";
+                yTxt.classList.add('switch-text-anim'); // Animasi ganti teks
+            }, 1000); 
+
+        }, 2000);
+
+        await new Promise(r=>setTimeout(r, 7000)); // Tunggu teks selesai
+        UI.chat.innerHTML = '';
+        UI.chat.style.opacity = 1;
+        
+        await poetChat("Selamat udah namatin level 2025 dengan keren!", 70);
+        await new Promise(r=>setTimeout(r, 1000));
+        await poetChat("Bener-bener ga kerasa yaa.", 70);
+        await poetChat("Makasih buat tahun kemaren, buat semua kenangan jadi partner in crimenya.", 70);
+        await poetChat("Kalo mau nyari partner in crime lagi, inget u selalu punya adik keren ini yaa.", 70);
+
+        runPhaseWish();
+    }
+
+    // --- PHASE 4: WISH ---
+    async function runPhaseWish() {
+        await poetChat("Tahun ini apa yang mau u capai?", 70);
+        await poetChat("Mau naklukin apa lagi?", 70);
+        await poetChat("Kasih tau yaa, bakal kasih Aaamiin paling serius gw", 70);
+        await poetChat("dua agama kurang poweful apa tu, wkwk", 70);
+        
+        showInput("Tulis harapanmu...", (val) => {
+            princessChat(val); 
+            UI.input.innerHTML = '';
+            runPhaseLetter(val);
+        });
+    }
+
+    async function runPhaseLetter(wishText) {
+        await new Promise(r=>setTimeout(r, 1000));
+        
+        const letter = document.createElement('div');
+        letter.className = 'letter-card';
+        letter.innerHTML = `
+            <div style="border-bottom:1px solid #ddd; margin-bottom:10px; padding-bottom:5px;">Dear God,</div>
+            <div style="margin-bottom:15px; font-size:1.2rem;">"${wishText}"</div>
+            <div style="text-align:right; font-size:0.9rem;">Tertanda,<br><b>Priscilla Annastasya Theophilia</b></div>
+        `;
+        UI.chat.appendChild(letter);
+        scrollDown();
+        AudioSys.play('heaven');
+
+        await new Promise(r=>setTimeout(r, 3000));
+        
+        // CINEMATIC TEXT OVERLAY
+        const cOverlay = document.getElementById('cinematic-text-overlay');
+        const cMsg = document.getElementById('cinematic-msg');
+        cMsg.innerText = "Semoga doa yang u harapkan tercapai, apapun itu";
+        cOverlay.style.opacity = 1;
+
+        await new Promise(r=>setTimeout(r, 3000));
+        cOverlay.style.opacity = 0; // Fade out
+        
+        if(state.gold) goldenPromise(); else finalTransition();
+    }
+
+    // --- GOLDEN PROMISE ---
+    function goldenPromise() {
+        setTimeout(() => {
+            isFireworks = false;
+            UI.fwCanvas.style.opacity = 0;
+            UI.frame.classList.remove("frame-glass-mode");
+            UI.frame.style.background = "var(--golden-grad)";
+            UI.chat.innerHTML = ""; 
+            
+            isFireflies = true;
+            UI.ffCanvas.style.opacity = 1;
+            initFireflyEngine();
+
+            const title = document.createElement('div');
+            title.className = 'golden-title';
+            title.innerText = "Chapter : The Golden Promise"; 
+            UI.chat.appendChild(title);
+            
+            const sub = document.createElement('div');
+            sub.className = 'golden-subtitle';
+            sub.innerText = "Karena telah mendapatkan Golden Heart, u bisa memilih di kehidupan selanjutnya, ingin reinkarnasi jadi apa?"; 
+            UI.chat.appendChild(sub);
+            
+            const container = document.createElement('div');
+            container.className = 'card-container';
+            const cards = [
+                { id: 'pasangan', icon: '💍', label: 'Pasangan' },
+                { id: 'kakak', icon: '🛡️', label: 'Kakak' },
+                { id: 'bestie', icon: '🤞', label: 'Bestie' }
+            ];
+            cards.forEach(c => {
+                const card = document.createElement('div');
+                card.className = 'promise-card';
+                card.innerHTML = `<div class="icon">${c.icon}</div><div class="label">${c.label}</div>`;
+                card.onclick = () => melancholy(c.id);
+                container.appendChild(card);
+            });
+            UI.chat.appendChild(container);
+            scrollDown();
+        }, 2000);
+    }
+
+    async function melancholy(choice) {
+        UI.chat.innerHTML = ''; 
+        let reply = "";
+        
+        if(choice === 'pasangan') reply = "Semoga kita terikat di kehidupan selanjutnya sebagai pasangan paling hangat sedunia, lucu juga yaa bakal gimana \"Ketidaksengajaan\" yang pertemuin kita nanti";
+        if(choice === 'kakak') reply = "Semoga yaa, tapi u jangan galak-galak sama adick u inii, nanti kita pasti jadi duo troublemaker wkwk";
+        if(choice === 'bestie') reply = "Lucu juga ya, entah bakal jadi partner in crime macam apa kitaa";
+        
+        await poetChat(reply, 80); 
+        await new Promise(r=>setTimeout(r, 2000));
+        
+        const finalDiv = document.createElement('div');
+        finalDiv.style.textAlign = 'center'; finalDiv.style.marginTop = '30px';
+        finalDiv.style.fontFamily = 'Cinzel'; finalDiv.style.fontSize = '1.2rem';
+        finalDiv.style.color = '#fff'; finalDiv.style.textShadow = '0 0 10px gold';
+        finalDiv.style.opacity = '0'; finalDiv.style.transition = 'opacity 2s';
+        finalDiv.innerText = "Apapun itu gw janji bakal sayangin u, bahkan kalo dikehidupan selanjutnya mungkin u jadi cacing";
+        UI.chat.appendChild(finalDiv); scrollDown();
+        setTimeout(() => finalDiv.style.opacity = '1', 100);
+
+        await new Promise(r=>setTimeout(r, 4000));
+        finalTransition();
+    }
+
+    function finalTransition() {
+        UI.frame.style.opacity = 0; 
+        AudioSys.play('trumpet'); 
+        AudioSys.play('confetti'); 
+        startConfetti();
+
+        setTimeout(() => {
+            UI.result.style.display = 'flex'; 
+            setTimeout(() => UI.result.style.opacity = 1, 100);
+            animateResult();
+        }, 1000);
+    }
+
+    function animateResult() {
+        let redScore = state.hearts; 
+        let displayRed = redScore - (state.white?1:0) - (state.gold?1:0); 
+        let totalScore = redScore;
+
+        setTimeout(() => { document.getElementById('row-red').classList.add('anim-reveal'); countUp(UI.rRed, displayRed); }, 500);
+        setTimeout(() => { 
+            document.getElementById('row-white').classList.add('anim-reveal'); 
+            if(state.white) { document.getElementById('val-white').innerHTML = "<span class='found'>FOUND (+1)</span>"; AudioSys.play('levelup'); }
+            else { document.getElementById('val-white').innerHTML = "<span class='miss'>MISSING</span>"; AudioSys.play('error'); }
+        }, 1500);
+        setTimeout(() => { 
+            document.getElementById('row-gold').classList.add('anim-reveal'); 
+            if(state.gold) { document.getElementById('val-gold').innerHTML = "<span class='gold'>FOUND (+1)</span>"; AudioSys.play('heaven'); }
+            else { document.getElementById('val-gold').innerHTML = "<span class='miss'>MISSING</span>"; AudioSys.play('error'); }
+        }, 2500);
+        setTimeout(() => {
+            document.getElementById('row-total').classList.add('anim-reveal');
+            document.getElementById('val-total').innerText = totalScore + " / 10";
+            AudioSys.play('trumpet');
+            
+            let msg = "";
+            if (totalScore < 4) msg="Apaanjir segitu doang kocak.";
+            else if (totalScore < 8) msg="Ya lumayan lah, tetep aja kocak cuman dapet segitu.";
+            else if (totalScore >= 8 && !state.gold) msg="Wih dapet banyak, emang BEST!";
+            else if (state.gold && totalScore >= 9) msg="KEREEEEEEN BISA DAPETIN SEMUA, emang BEST sangat kakak kesayangan gw.";
+            else msg = "Wih dapet Golden Heart! Hampir sempurna.";
+            document.getElementById('result-msg').innerText = msg;
+        }, 3500);
+    }
+
+    function countUp(el, max) {
+        let curr = 0; if(max <= 0) { el.innerText = 0; return; }
+        let int = setInterval(() => { curr++; el.innerText = curr; AudioSys.play('type'); if(curr >= max) clearInterval(int); }, 100);
+    }
+
+    // --- VISUAL ENGINES ---
+    function initSnowEngine() {
+        const c = UI.bgCanvas; const x = c.getContext('2d');
+        c.width = window.innerWidth; c.height = window.innerHeight;
+        const flakes = Array(100).fill().map(() => ({ x: Math.random()*c.width, y: Math.random()*-c.height, size: Math.random()*8+4, speed: Math.random()*2+1 }));
+        function loop() {
+            x.clearRect(0,0,c.width,c.height);
+            if(isSnowing) {
+                x.fillStyle = "rgba(255,255,255,0.8)"; x.font = "15px Arial";
+                flakes.forEach(f => {
+                    x.fillText("❄", f.x, f.y); f.y += f.speed;
+                    if(f.y > c.height) f.y = -20;
+                });
+                requestAnimationFrame(loop);
+            } else { x.clearRect(0,0,c.width,c.height); }
+        }
+        loop();
+    }
+
+    function launchCenterFirework() {
+        const c = UI.fwCanvas; const ctx = c.getContext('2d');
+        let y = c.height; const targetY = c.height / 2; const x = c.width / 2;
+        
+        AudioSys.play('trail'); 
+        
+        const launch = setInterval(() => {
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,c.width,c.height);
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fillStyle = 'gold'; ctx.fill();
+            y -= 10;
+            if(y <= targetY) {
+                clearInterval(launch);
+                AudioSys.play('firework'); 
+                // Start randoms
+                setInterval(() => { 
+                    if(isFireworks) { 
+                        createExplosion(Math.random() * c.width, Math.random() * c.height * 0.6); 
+                        if(fireworkCount < 3) { AudioSys.play('firework'); fireworkCount++; }
+                    } 
+                }, 1500);
+                createExplosion(x, y);
+            }
+        }, 20);
+    }
+
+    let particles = [];
+    function createExplosion(x, y) {
+        const colors = ['#ff0040', '#ff00aa', '#aa00ff', '#00aaff', '#00ffaa', '#ffff00', '#ffffff'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        for (let i = 0; i < 40; i++) {
+            const angle = (Math.PI * 2 * i) / 40; const speed = Math.random() * 3 + 2;
+            particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, alpha: 1, color: color, decay: Math.random() * 0.015 + 0.005 });
+        }
+    }
+
+    function initFireworkEngine() {
+        const c = UI.fwCanvas; const ctx = c.getContext('2d');
+        c.width = window.innerWidth; c.height = window.innerHeight;
+        
+        function animate() {
+            ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; ctx.fillRect(0, 0, c.width, c.height); ctx.globalCompositeOperation = 'lighter';
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i]; ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2); ctx.fill();
+                p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.alpha -= p.decay;
+                if (p.alpha <= 0) particles.splice(i, 1);
+            }
+            if(isFireworks || particles.length > 0) requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    function initFireflyEngine() {
+        const c = UI.ffCanvas; const ctx = c.getContext('2d');
+        c.width = window.innerWidth; c.height = window.innerHeight;
+        const flies = Array(30).fill().map(() => ({
+            x: Math.random()*c.width, y: Math.random()*c.height,
+            size: Math.random()*2+1, speedX: (Math.random()-0.5)*0.5, speedY: (Math.random()-0.5)*0.5,
+            opacity: Math.random(), dir: Math.random() > 0.5 ? 0.01 : -0.01
+        }));
+        function animate() {
+            ctx.clearRect(0,0,c.width,c.height);
+            if(isFireflies) {
+                flies.forEach(f => {
+                    ctx.beginPath(); ctx.arc(f.x, f.y, f.size, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(255, 215, 0, ${f.opacity})`; ctx.fill();
+                    f.x += f.speedX; f.y += f.speedY;
+                    f.opacity += f.dir;
+                    if(f.opacity > 1 || f.opacity < 0.2) f.dir *= -1;
+                    if(f.x < 0 || f.x > c.width) f.speedX *= -1;
+                    if(f.y < 0 || f.y > c.height) f.speedY *= -1;
+                });
+                requestAnimationFrame(animate);
+            }
+        }
+        animate();
+    }
+
+    function startConfetti() {
+        const c = document.getElementById('confetti-canvas'); const ctx = c.getContext('2d');
+        c.width = window.innerWidth; c.height = window.innerHeight;
+        const particles = Array(150).fill().map(() => ({ x: c.width/2, y: c.height/2, vx: (Math.random()-0.5)*15, vy: (Math.random()-0.5)*15 - 5, color: `hsl(${Math.random()*360}, 100%, 50%)`, size: Math.random()*8+4 }));
+        function draw() {
+            ctx.clearRect(0,0,c.width,c.height);
+            particles.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); p.x += p.vx; p.y += p.vy; p.vy += 0.3; });
+            requestAnimationFrame(draw);
+        }
+        draw();
+    }
+</script>
+</body>
+</html>
