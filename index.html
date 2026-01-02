@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Urbanist:wght@300;400;600;700&family=Dancing+Script:wght@600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- SEMUA CSS DIPERTAHANKAN DARI VERSI SEBELUMNYA --- */
+        /* --- CSS SAMA SEPERTI VERSI BETA 4.5 (FINAL VISUAL) --- */
         :root {
             --midnight-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             --newyear-grad: linear-gradient(to bottom, #10002b, #240046, #3c096c);
@@ -359,7 +359,7 @@
             font-family: 'Urbanist'; font-size: 0.8rem; letter-spacing: 2px; cursor: pointer;
         }
 
-        /* RESULT SCREEN */
+        /* RESULT SCREEN (HIDDEN INITIALLY) */
         #result-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--result-grad); z-index: 500;
@@ -441,7 +441,7 @@
     </div>
 
 <script>
-    // --- AUDIO SYSTEM (DIPERTAHANKAN) ---
+    // --- AUDIO SYSTEM ---
     const AudioSys = {
         ctx: null,
         init: function() {
@@ -605,7 +605,6 @@
     }
 
     function enterGame() {
-        // AUDIO START (Fade In)
         AudioSys.play('open');
         const overlay = document.getElementById('start-overlay');
         overlay.classList.add('blur-out-active');
@@ -836,33 +835,15 @@
             await poetChat("Yee ngeremehin 😎");
             await poetChat("Ehem ehem... 🎤");
             
-            // FADE IN LAGU 1
             if(s1) {
-                s1.currentTime = 0;
-                s1.volume = 0;
-                s1.play().then(() => {
-                    let v = 0;
-                    let fade = setInterval(() => {
-                        if(v < 1) { v += 0.1; s1.volume = v; }
-                        else clearInterval(fade);
-                    }, 200);
-                });
-
-                // SAAT LAGU 1 SELESAI, LANJUT LAGU 2
-                s1.onended = () => {
+                s1.volume = 1.0;
+                s1.play().catch(e=>{});
+                
+                // EVENT: LAGU 1 SELESAI -> JEDA 2s -> LAGU 2 MAIN
+                s1.onended = function() {
                     setTimeout(() => {
-                        if(s2) {
-                            s2.currentTime = 0;
-                            s2.volume = 0;
-                            s2.play().then(() => {
-                                let v2 = 0;
-                                let fade2 = setInterval(() => {
-                                    if(v2 < 0.5) { v2 += 0.05; s2.volume = v2; }
-                                    else clearInterval(fade2);
-                                }, 200);
-                            });
-                        }
-                    }, 2000); // Jeda 2 detik
+                        if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
+                    }, 2000);
                 };
             }
             
@@ -875,17 +856,7 @@
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
             // LANGSUNG MAIN LAGU 2
-            if(s2) {
-                s2.currentTime = 0;
-                s2.volume = 0;
-                s2.play().then(() => {
-                    let v2 = 0;
-                    let fade2 = setInterval(() => {
-                        if(v2 < 0.5) { v2 += 0.05; s2.volume = v2; }
-                        else clearInterval(fade2);
-                    }, 200);
-                });
-            }
+            if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
             
             q2();
         }
@@ -992,7 +963,6 @@
 
         await poetChat("Kayanya, salju mulai turun...");
         
-        // REVISI: JEDA 1 DETIK
         await new Promise(r=>setTimeout(r, 1000));
 
         isSnowing = true;
