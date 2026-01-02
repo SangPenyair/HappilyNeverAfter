@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Urbanist:wght@300;400;600;700&family=Dancing+Script:wght@600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS TETAP SAMA (STABIL) --- */
+        /* --- CSS VISUAL (STABIL & RESPONSIVE) --- */
         :root {
             --midnight-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             --newyear-grad: linear-gradient(to bottom, #10002b, #240046, #3c096c);
@@ -25,23 +25,13 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         html, body {
-            height: 100%;
-            height: 100dvh; 
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; 
-            background: #000;
-            font-family: 'Urbanist', sans-serif;
-            color: white;
+            height: 100%; height: 100dvh; width: 100%; margin: 0; padding: 0;
+            overflow: hidden; background: #000; font-family: 'Urbanist', sans-serif; color: white;
         }
 
         body {
             background: radial-gradient(circle at center, #1a2a3a 0%, #000000 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: background 2s ease;
+            display: flex; justify-content: center; align-items: center; transition: background 2s ease;
         }
 
         /* LAYERS */
@@ -56,7 +46,7 @@
             pointer-events: none; opacity: 1; transition: opacity 2s ease-in-out;
         }
 
-        /* 2026 TEXT CINEMATIC */
+        /* 2026 TEXT */
         #year-text {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-family: 'Cinzel', serif; font-size: 3rem; color: var(--gold);
@@ -95,7 +85,7 @@
             line-height: 1.5;
         }
 
-        /* IDENTITY OVERLAY (GLASS) */
+        /* IDENTITY OVERLAY */
         #identity-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.1);
@@ -441,7 +431,7 @@
     </div>
 
 <script>
-    // --- AUDIO SYSTEM ---
+    // --- AUDIO SYSTEM (NO VOLUME LOGIC - JUST PLAY/PAUSE) ---
     const AudioSys = {
         ctx: null,
         init: function() {
@@ -459,12 +449,6 @@
                 o.type = 'sine'; o.frequency.setValueAtTime(60, t); 
                 g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4, t + 2); g.gain.exponentialRampToValueAtTime(0.001, t + 6);
                 o.start(t); o.stop(t+6);
-                setTimeout(() => {
-                    const o2 = this.ctx.createOscillator(); const g2 = this.ctx.createGain();
-                    o2.type='triangle'; o2.frequency.value=120; o2.connect(g2); g2.connect(this.ctx.destination);
-                    g2.gain.setValueAtTime(0, t); g2.gain.linearRampToValueAtTime(0.1, t+2); g2.gain.linearRampToValueAtTime(0, t+5);
-                    o2.start(t); o2.stop(t+5);
-                }, 100);
             }
             else if(key === 'open') {
                 const now = t;
@@ -611,7 +595,15 @@
     }
 
     function enterGame() {
+        // AUDIO START (NO VOLUME LOGIC)
         AudioSys.play('open');
+        
+        // --- TRICK MOBILE (WAJIB): Pancing play/pause kedua lagu ---
+        const s1 = document.getElementById('uke-song');
+        const s2 = document.getElementById('bgm-song');
+        if(s1) { s1.play().then(()=>s1.pause()).catch(e=>{}); }
+        if(s2) { s2.play().then(()=>s2.pause()).catch(e=>{}); }
+
         const overlay = document.getElementById('start-overlay');
         overlay.classList.add('blur-out-active');
         setTimeout(() => {
@@ -689,7 +681,6 @@
     }
 
     function updateHearts(val, isGold = false) {
-        // GOLD LOGIC
         if (isGold) {
             state.hearts += val;
             UI.hearts.innerText = state.hearts;
@@ -716,7 +707,6 @@
         const targetY = targetRect.top + (targetRect.height/2);
 
         if (val > 0) {
-            // POP UP BIG AT CENTER
             const fly = document.createElement('div');
             fly.className = 'flying-heart';
             fly.innerText = '❤️';
@@ -729,9 +719,9 @@
 
             setTimeout(() => {
                 fly.style.transition = 'all 0.8s ease-in-out';
-                fly.style.left = targetX + 'px'; 
-                fly.style.top = targetY + 'px'; 
-                fly.style.transform = 'translate(-50%, -50%) scale(0.2)'; 
+                fly.style.left = targetX + 'px';
+                fly.style.top = targetY + 'px';
+                fly.style.transform = 'translate(-50%, -50%) scale(0.2)';
                 fly.style.opacity = '0.5';
             }, 1000);
 
@@ -743,15 +733,15 @@
                 UI.heartIcon.classList.add('heart-pump');
                 spawnFloatText(`+${val}`, targetX, targetY + 30, '#4cd964');
                 setTimeout(()=>UI.heartIcon.classList.remove('heart-pump'), 300);
-            }, 1800); 
+            }, 1800);
         } else {
-            // SUBTRACT
             AudioSys.play('break');
             UI.heartIcon.classList.add('heart-broken');
             const drop = document.createElement('div');
             drop.className = 'falling-heart';
             drop.innerText = '💔';
-            drop.style.left = targetX + 'px'; drop.style.top = targetY + 'px';
+            drop.style.left = targetX + 'px';
+            drop.style.top = targetY + 'px';
             document.body.appendChild(drop);
             
             setTimeout(() => {
@@ -843,17 +833,17 @@
             await poetChat("Yee ngeremehin 😎");
             await poetChat("Ehem ehem... 🎤");
             
-            // --- LOGIC AUDIO A (Dengerin) ---
+            // --- MAIN UKULELE (A) ---
             if(s1) {
-                // TRICK: Pancing Lagu 2 biar HP ngasih izin
-                if(s2) { s2.volume=0.5; s2.play().then(()=>s2.pause()).catch(e=>{}); }
+                // TRICK: Pancing Lagu 2 sebentar biar HP ngasih izin nanti
+                if(s2) { s2.play().then(()=>s2.pause()).catch(e=>{}); }
 
-                s1.volume = 1.0;
                 s1.currentTime = 0;
                 s1.play().catch(e=>{});
                 
-                // Jangan pake onended buat play lagu 2 langsung,
-                // biar nanti pas salju turun aja mainnya (biar dramatis)
+                // EVENT: LAGU 1 SELESAI
+                // KITA GAK LANGSUNG NYALAIN LAGU 2 DI SINI
+                // BIAR NYALANYA PAS SALJU TURUN AJA (LEBIH DRAMATIS)
             }
             
             await new Promise(r => setTimeout(r, 5000));
@@ -864,10 +854,8 @@
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            // --- LOGIC AUDIO B (Gausah) ---
-            // Langsung mainin Lagu 2
+            // --- MAIN BGM LANGSUNG (B) ---
             if(s2) {
-                s2.volume = 0.5;
                 s2.currentTime = 0;
                 s2.play().catch(e=>{});
             }
@@ -915,8 +903,8 @@
         else if(c=='B') { 
             princessChat("Udah engga lanjut nih 😮‍💨"); 
             updateHearts(1); 
-            await poetChat("Tu kan mending sama gw anjir, wkwk"); 
-            await poetChat("Tapi ya, semoga u bisa tau ya apa yang u butuh sebenernya, karena apa yang paling u mau terkadang bukan yang sebenernya paling u butuhin"); 
+            await poetChat("Tu kan mending sama gw anjir, wkwk canda"); 
+            await poetChat("Tapi ya, semoga kedepannya u bisa tau ya apa yang u butuh sebenernya, karena apa yang paling u MAU terkadang bukan yang sebenernya paling u BUTUHIN"); 
             nextFinal(); 
         }
         else {
@@ -945,9 +933,9 @@
     }
 
     function chatWhatsApp() {
-        // GANTI NOMOR DI SINI (Format: 628...)
+        // --- GANTI NOMOR DI SINI (WAJIB GANTI) ---
         let myNumber = "62895328424441"; 
-        let msg = " *S . O . S* Cila butuh adick Aksa";
+        let msg = "*S.O.S* _Cila butuh adik Aksa_";
 
         window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(msg)}`, '_blank');
         
@@ -957,7 +945,7 @@
 
     // --- PHASE 2: BRIDGE (CHRISTMAS) ---
     async function nextFinal() {
-        await poetChat("Gw keasikan ngobrol sampe lupa nanya, gimana kabar u...?"); await poetChat("Tuan Putri.. Cilla?");
+        await poetChat("Gw keasikan ngobrol sampe lupa nanya, gimana kabar u...?"); await poetChat("Tuan Putri.. Cila?");
         showOptions([{ text: "Puji Tuhan, Alhamdulillah, semua aman-aman aza ko, BEST! ✨", action: ()=>fin('A') }, { text: "Ya gitu-gitu ajaa sii 😐", action: ()=>fin('B') }, { text: "Puji Tuhan baik semuaa, tapi kangen adik penyair i 🥺💛", action: ()=>fin('C') }]);
     }
 
@@ -982,13 +970,14 @@
 
         await poetChat("Kayanya, salju mulai turun...");
         
-        // --- AUDIO: PUTAR LAGU 2 DI SINI (Jika belum main) ---
+        // --- AUDIO: CEK APAKAH LAGU 2 PERLU DIPUTAR ---
+        // Kalau pilih A tadi (uke main), sekarang saatnya BGM masuk
         const s2 = document.getElementById('bgm-song');
         if(s2 && s2.paused) {
-            s2.volume = 0.5;
             s2.play().catch(e=>{});
         }
 
+        // JEDA 1 DETIK
         await new Promise(r=>setTimeout(r, 1000));
 
         isSnowing = true;
@@ -1158,7 +1147,7 @@
         finalDiv.style.fontFamily = 'Cinzel'; finalDiv.style.fontSize = '1.2rem';
         finalDiv.style.color = '#fff'; finalDiv.style.textShadow = '0 0 10px gold';
         finalDiv.style.opacity = '0'; finalDiv.style.transition = 'opacity 2s';
-        finalDiv.innerText = "Apapun itu gw janji bakal sayangin u, bahkan kalo di kehidupan selanjutnya mungkin u jadi cacing";
+        finalDiv.innerText = "Apapun itu gw janji bakal sayangin u, bahkan kalo dikehidupan selanjutnya mungkin u jadi cacing";
         UI.chat.appendChild(finalDiv); scrollDown();
         setTimeout(() => finalDiv.style.opacity = '1', 100);
 
