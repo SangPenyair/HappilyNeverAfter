@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>The Poet & The Princess</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,13 +23,23 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+        html, body {
+            height: 100%;
+            height: 100dvh; /* KUNCI BIAR PAS DI CHROME HP */
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* KUNCI BIAR GAK SCROLL BODY */
+            background: #000;
+            font-family: 'Urbanist', sans-serif;
+            color: white;
+        }
+
         body {
             background: radial-gradient(circle at center, #1a2a3a 0%, #000000 100%);
-            height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            font-family: 'Urbanist', sans-serif;
-            overflow: hidden; color: white;
-            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             transition: background 2s ease;
         }
 
@@ -51,17 +61,17 @@
             font-family: 'Cinzel', serif; font-size: 5rem; color: var(--gold);
             text-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
             z-index: 50; opacity: 0; pointer-events: none; letter-spacing: 15px;
-            text-align: center;
+            text-align: center; width: 100%;
         }
         .reveal-year { animation: blurFocus 6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        .switch-text-anim { animation: textSwitch 4s forwards; }
+
         @keyframes blurFocus {
             0% { opacity: 0; filter: blur(30px); transform: translate(-50%, -50%) scale(1.5); }
             30% { opacity: 1; filter: blur(0px); transform: translate(-50%, -50%) scale(1); }
             80% { opacity: 1; filter: blur(0px); transform: translate(-50%, -50%) scale(1); }
             100% { opacity: 0; filter: blur(20px); transform: translate(-50%, -50%) scale(1.2); }
         }
-        /* Animasi ganti teks (flash dikit) */
-        .switch-text-anim { animation: textSwitch 4s forwards; }
         @keyframes textSwitch {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); filter: blur(10px); }
             20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); filter: blur(0px); text-shadow: 0 0 50px gold; }
@@ -69,17 +79,18 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); filter: blur(20px); }
         }
 
-        /* CINEMATIC TEXT OVERLAY (Final Wish) */
+        /* CINEMATIC TEXT OVERLAY */
         #cinematic-text-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
             z-index: 2000; pointer-events: none; opacity: 0;
             transition: opacity 1.5s ease;
             background: rgba(0,0,0,0.4);
+            padding: 20px;
         }
         .cinematic-msg {
-            font-family: 'Playfair Display', serif; font-size: 2rem; color: #fff;
-            text-align: center; text-shadow: 0 0 20px gold; max-width: 80%;
+            font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #fff;
+            text-align: center; text-shadow: 0 0 20px gold; max-width: 90%;
             line-height: 1.5;
         }
 
@@ -91,13 +102,12 @@
             z-index: 5000; display: none;
             flex-direction: column; justify-content: center; align-items: center;
             opacity: 0; transition: opacity 1s ease;
+            padding: 20px;
         }
-        .id-box {
-            text-align: center; width: 80%; max-width: 400px;
-        }
+        .id-box { text-align: center; width: 100%; max-width: 400px; }
         .id-title { font-family: 'Cinzel'; font-size: 2rem; color: var(--gold); margin-bottom: 20px; text-shadow: 0 0 10px black; }
         .id-input { 
-            width: 100%; padding: 15px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.3);
+            width: 80%; padding: 15px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.3);
             background: rgba(0,0,0,0.5); color: white; text-align: center; font-size: 1.2rem; outline: none;
             font-family: 'Urbanist'; margin-bottom: 20px;
         }
@@ -110,7 +120,7 @@
 
         /* GOLDEN PROMISE TITLE */
         .golden-title {
-            font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold);
+            font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold);
             text-align: center; margin-bottom: 10px;
             opacity: 0; animation: aestheticReveal 3s forwards;
             text-shadow: 0 0 15px var(--gold);
@@ -122,10 +132,10 @@
         }
 
         /* CARD CHOICES */
-        .card-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+        .card-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
         .promise-card {
             background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 12px; padding: 20px 15px; width: 100px; height: 130px;
+            border-radius: 12px; padding: 15px; width: 90px; height: 120px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             cursor: pointer; transition: all 0.4s ease; text-align: center;
             backdrop-filter: blur(4px); opacity: 0; animation: cardPop 0.8s forwards;
@@ -134,9 +144,9 @@
         .promise-card:nth-child(1) { animation-delay: 0.5s; }
         .promise-card:nth-child(2) { animation-delay: 0.8s; }
         .promise-card:nth-child(3) { animation-delay: 1.1s; }
-        .promise-card:hover { transform: translateY(-10px) scale(1.05); background: rgba(255,215,0,0.15); box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); border-color: var(--gold); }
-        .promise-card .icon { font-size: 2.2rem; margin-bottom: 10px; filter: drop-shadow(0 0 5px gold); }
-        .promise-card .label { font-family: 'Cinzel'; font-size: 0.75rem; color: #fff; letter-spacing: 1px; }
+        .promise-card:hover { transform: translateY(-5px) scale(1.05); border-color: var(--gold); }
+        .promise-card .icon { font-size: 2rem; margin-bottom: 8px; filter: drop-shadow(0 0 5px gold); }
+        .promise-card .label { font-family: 'Cinzel'; font-size: 0.7rem; color: #fff; letter-spacing: 1px; }
         
         @keyframes cardPop { 0% { transform: scale(0.8) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
         @keyframes aestheticReveal { 0% { opacity: 0; filter: blur(10px); } 100% { opacity: 1; filter: blur(0px); } }
@@ -162,21 +172,22 @@
 
         /* NOTIFIKASI */
         #notification {
-            position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8); border: 1px solid var(--gold);
-            padding: 15px 25px; border-radius: 30px;
+            position: fixed; top: 15%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9); border: 1px solid var(--gold);
+            padding: 15px 20px; border-radius: 20px; width: 90%; max-width: 350px;
             color: var(--gold); font-family: 'Cinzel'; font-weight: bold;
             z-index: 10001; opacity: 0; pointer-events: none;
             transition: opacity 0.5s, transform 0.5s;
-            text-align: center; line-height: 1.4;
+            text-align: center; line-height: 1.4; font-size: 0.9rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
         }
         .show-notif { opacity: 1 !important; transform: translate(-50%, 0) !important; }
 
         /* LETTER CARD */
         .letter-card {
-            background: #fff; color: #111; padding: 25px; border-radius: 4px;
-            width: 90%; max-width: 350px; margin: 20px auto;
-            font-family: 'Dancing Script', cursive; font-size: 1.4rem;
+            background: #fff; color: #111; padding: 20px; border-radius: 4px;
+            width: 90%; max-width: 320px; margin: 15px auto;
+            font-family: 'Dancing Script', cursive; font-size: 1.3rem;
             box-shadow: 0 0 30px rgba(255,255,255,0.15);
             transform: rotate(-1deg); opacity: 0;
             animation: cardIn 1.5s forwards;
@@ -197,41 +208,53 @@
         }
         @keyframes dropDown { to { top: 100%; opacity: 0; transform: rotate(45deg); } }
 
-        /* FRAME HP */
+        /* FRAME HP (FIX FOR MOBILE) */
         #mobile-frame {
-            width: 100%; max-width: 450px; height: 100%;
+            position: relative;
+            width: 100%;
+            height: 100dvh; /* Dynamic Viewport Height */
+            max-width: 450px;
             background: var(--midnight-grad);
-            position: relative; display: flex; flex-direction: column;
             box-shadow: 0 0 100px rgba(0,0,0,0.9);
-            border-left: 1px solid rgba(255,255,255,0.05);
-            border-right: 1px solid rgba(255,255,255,0.05);
-            overflow: hidden; opacity: 0; transition: opacity 2s ease, background 2s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Ensure contained scrolling */
+            opacity: 0;
+            transition: opacity 2s ease, background 2s ease;
             z-index: 10;
             backdrop-filter: blur(0px); 
         }
+        
         .frame-glass-mode {
             background: rgba(20, 0, 50, 0.4) !important;
             backdrop-filter: blur(10px) !important;
             box-shadow: 0 0 50px rgba(255, 255, 255, 0.1) !important;
         }
-        
+
         .shake-hard { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
 
         .header {
-            padding: 20px 25px; display: flex; justify-content: space-between; align-items: center;
+            flex: 0 0 auto; /* Don't shrink */
+            padding: 15px 20px; 
+            padding-top: max(15px, env(safe-area-inset-top)); /* Notch Support */
+            display: flex; justify-content: space-between; align-items: center;
             background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); border-bottom: var(--glass-border); z-index: 20;
         }
-        .header-title { font-family: 'Cinzel', serif; color: var(--gold); letter-spacing: 2px; font-weight: 700; }
-        .heart-counter { font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .header-title { font-family: 'Cinzel', serif; color: var(--gold); letter-spacing: 2px; font-weight: 700; font-size: 1rem; }
+        .heart-counter { font-size: 1rem; font-weight: bold; display: flex; align-items: center; gap: 8px; }
         #heart-icon { transition: transform 0.3s; }
         .heart-pump { transform: scale(1.5); filter: drop-shadow(0 0 15px red); }
         .heart-broken { filter: grayscale(100%); transform: scale(0.8); }
 
         #chat-content {
-            flex: 1; overflow-y: auto; padding: 25px 20px;
-            display: flex; flex-direction: column; gap: 20px; z-index: 10;
-            padding-bottom: 50px; transition: opacity 1s ease;
+            flex: 1; /* Take remaining height */
+            overflow-y: auto; /* Scroll inside here */
+            padding: 20px 15px;
+            display: flex; flex-direction: column; gap: 15px; z-index: 10;
+            padding-bottom: 30px; 
+            transition: opacity 1s ease;
+            -webkit-overflow-scrolling: touch; /* Smooth iOS scroll */
         }
         #chat-content::-webkit-scrollbar { display: none; }
 
@@ -242,11 +265,11 @@
         }
         @keyframes elasticPop { to { opacity: 1; transform: scale(1) translateY(0); } }
 
-        .dialog-label { font-family: 'Cinzel', serif; font-size: 0.7rem; margin-bottom: 4px; font-weight: 700; opacity: 0.8; margin-left: 4px; }
+        .dialog-label { font-family: 'Cinzel', serif; font-size: 0.65rem; margin-bottom: 4px; font-weight: 700; opacity: 0.8; margin-left: 4px; }
         .dialog-box {
-            padding: 14px 18px; border-radius: 18px; font-size: 1rem; line-height: 1.5;
+            padding: 12px 16px; border-radius: 16px; font-size: 0.95rem; line-height: 1.4;
             backdrop-filter: blur(10px); border: var(--glass-border);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .poet-container { align-self: flex-start; }
@@ -260,8 +283,8 @@
         .narrative {
             align-self: center; text-align: center;
             font-family: 'Cinzel', serif; color: var(--text-narrative);
-            font-size: 0.95rem; margin: 15px 0; max-width: 90%;
-            padding: 8px 15px;
+            font-size: 0.85rem; margin: 10px 0; max-width: 90%;
+            padding: 6px 12px;
             background: linear-gradient(90deg, transparent, rgba(0,0,0,0.6), transparent);
             opacity: 0; transform: translateY(10px);
             animation: fadeInNarrative 1s ease forwards;
@@ -269,18 +292,21 @@
         @keyframes fadeInNarrative { to { opacity: 1; transform: translateY(0); } }
 
         #input-area {
-            padding: 20px; background: rgba(0, 0, 0, 0.4); 
+            flex: 0 0 auto; /* Don't shrink */
+            padding: 15px; background: rgba(0, 0, 0, 0.4); 
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-top: var(--glass-border); min-height: 80px; z-index: 20;
+            border-top: var(--glass-border); min-height: 70px; z-index: 20;
             display: flex; flex-direction: column; gap: 10px;
             transition: opacity 0.5s ease;
+            padding-bottom: max(15px, env(safe-area-inset-bottom)); /* Home bar safe area */
         }
 
         .choice-btn {
             background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-            padding: 14px; border-radius: 12px; color: white; text-align: center;
-            cursor: pointer; transition: 0.2s; font-size: 0.95rem;
+            padding: 12px; border-radius: 12px; color: white; text-align: center;
+            cursor: pointer; transition: 0.2s; font-size: 0.9rem;
             opacity: 0; transform: translateY(10px); animation: slideUp 0.4s forwards;
+            touch-action: manipulation;
         }
         .choice-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.98); }
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
@@ -696,19 +722,16 @@
             fly.innerText = '❤️';
             document.body.appendChild(fly);
 
-            // Pop animation done via CSS scale(0) -> scale(1)
-            // Wait slightly then fly
             requestAnimationFrame(() => {
-                fly.style.transform = 'translate(-50%, -50%) scale(1.2)'; // Pop Big
+                fly.style.transform = 'translate(-50%, -50%) scale(1.2)'; 
             });
 
             setTimeout(() => {
-                // Fly to target
                 fly.style.left = targetX + 'px'; 
                 fly.style.top = targetY + 'px'; 
                 fly.style.transform = 'translate(-50%, -50%) scale(0.2)'; 
                 fly.style.opacity = '0';
-            }, 800); // Wait 0.8s before flying
+            }, 800); 
 
             setTimeout(() => {
                 fly.remove();
@@ -718,7 +741,7 @@
                 UI.heartIcon.classList.add('heart-pump');
                 spawnFloatText(`+${val}`, targetX, targetY + 20, '#4cd964');
                 setTimeout(()=>UI.heartIcon.classList.remove('heart-pump'), 300);
-            }, 1800); // 0.8s wait + 1s fly
+            }, 1800); 
         } else {
             // SUBTRACT
             AudioSys.play('break');
@@ -729,7 +752,6 @@
             drop.style.left = targetX + 'px'; drop.style.top = targetY + 'px';
             document.body.appendChild(drop);
             
-            // DELAY UPDATE (1 detik)
             setTimeout(() => {
                 state.hearts += val;
                 UI.hearts.innerText = state.hearts;
@@ -746,6 +768,14 @@
         el.style.left = x + 'px'; el.style.top = y + 'px';
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 1000);
+    }
+
+    function playLagu2() {
+        const bgm = document.getElementById('bgm-song');
+        if(bgm) {
+            bgm.volume = 0.5;
+            bgm.play().catch(e => console.log("Audio autoplay blocked"));
+        }
     }
 
     // --- PHASE 1: GAME CORE ---
@@ -786,7 +816,6 @@
             AudioSys.play('error');
             const box = document.querySelector('.id-box');
             box.classList.add('shake-hard');
-            // Flash Red
             document.getElementById('red-screen').classList.add('flash-active');
             setTimeout(()=> {
                 box.classList.remove('shake-hard');
@@ -825,7 +854,7 @@
                 s1.volume = 1.0;
                 s1.play().catch(e=>{});
                 
-                // EVENT LISTENER: Kalo Lagu 1 Selesai -> Jeda 2s -> Lagu 2 Main
+                // EVENT: LAGU 1 SELESAI -> JEDA 2s -> LAGU 2 MAIN
                 s1.onended = function() {
                     setTimeout(() => {
                         if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
@@ -833,9 +862,7 @@
                 };
             }
             
-            // Jeda visual sebentar (5 detik) biar seolah2 lagi siap2/mulai nyanyi
             await new Promise(r => setTimeout(r, 5000));
-            // Lanjut chat Q2 (Lagu 1 tetep jalan di background sampe abis sendiri)
             q2();
         }
         else { 
@@ -843,7 +870,7 @@
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            // Pilihan B: Langsung main Lagu 2
+            // LANGSUNG MAIN LAGU 2
             const s2 = document.getElementById('bgm-song');
             if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
             
@@ -907,7 +934,6 @@
         updateHearts(1); 
         UI.inv.innerHTML += "🤍"; 
         
-        // SOS FLASH (Red Blue)
         UI.sos.style.animation = "sosFlash 0.5s 3"; 
         
         const notif = document.getElementById('notification');
@@ -953,20 +979,17 @@
 
         await poetChat("Kayanya, salju mulai turun...");
         
-        // JEDA 4 DETIK BUAT NIKMATIN SALJU
+        // JEDA 4 DETIK
         await new Promise(r=>setTimeout(r, 4000));
 
-        // SALJU LANGSUNG TURUN
         isSnowing = true;
         UI.bgCanvas.style.opacity = 1;
         initSnowEngine();
         
         await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
         
-        // JEDA 1 DETIK
         await new Promise(r=>setTimeout(r, 1000));
 
-        // CHAT REVISI: HAPUS YANG DIMINTA
         const m = [
             "Oh iyaa, Selamat Natal yaa..",
             "Jujur, u berarti banget buat gw sebagai apapun",
@@ -994,11 +1017,9 @@
 
         await new Promise(r=>setTimeout(r, 1000));
         
-        // REVISI: TRANSISI TEKS 2026 KE SELAMAT TAHUN BARU
         const yTxt = UI.yearText;
-        yTxt.classList.add('reveal-year'); // Muncul "2026"
+        yTxt.classList.add('reveal-year'); 
         
-        // KEMBANG API SPESIAL
         setTimeout(() => {
             isFireworks = true;
             UI.fwCanvas.style.opacity = 1;
@@ -1006,16 +1027,16 @@
             // 1. Trail Center
             launchCenterFirework();
             
-            // SAAT MELEDAK (approx 1s travel), TEXT BERUBAH
+            // SAAT MELEDAK
             setTimeout(() => {
                 yTxt.classList.remove('reveal-year');
                 yTxt.innerText = "Selamat Tahun Baru!";
-                yTxt.classList.add('switch-text-anim'); // Animasi ganti teks
+                yTxt.classList.add('switch-text-anim'); 
             }, 1000); 
 
         }, 2000);
 
-        await new Promise(r=>setTimeout(r, 7000)); // Tunggu teks selesai
+        await new Promise(r=>setTimeout(r, 7000)); 
         UI.chat.innerHTML = '';
         UI.chat.style.opacity = 1;
         
@@ -1058,14 +1079,13 @@
 
         await new Promise(r=>setTimeout(r, 3000));
         
-        // CINEMATIC TEXT OVERLAY
         const cOverlay = document.getElementById('cinematic-text-overlay');
         const cMsg = document.getElementById('cinematic-msg');
         cMsg.innerText = "Semoga doa yang u harapkan tercapai, apapun itu";
         cOverlay.style.opacity = 1;
 
         await new Promise(r=>setTimeout(r, 3000));
-        cOverlay.style.opacity = 0; // Fade out
+        cOverlay.style.opacity = 0; 
         
         if(state.gold) goldenPromise(); else finalTransition();
     }
