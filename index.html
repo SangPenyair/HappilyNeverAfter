@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Urbanist:wght@300;400;600;700&family=Dancing+Script:wght@600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 
     <style>
+        /* --- CSS VISUAL (STABIL & FIX MOBILE) --- */
         :root {
             --midnight-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             --newyear-grad: linear-gradient(to bottom, #10002b, #240046, #3c096c);
@@ -198,7 +199,7 @@
         }
         @keyframes dropDown { to { top: 100%; opacity: 0; transform: rotate(45deg); } }
 
-        /* FRAME HP */
+        /* FRAME HP (MOBILE NATIVE) */
         #mobile-frame {
             position: relative;
             width: 100%;
@@ -430,7 +431,7 @@
     </div>
 
 <script>
-    // --- AUDIO SYSTEM (CLEAN) ---
+    // --- AUDIO SYSTEM (CLEAN & SIMPLE) ---
     const AudioSys = {
         ctx: null,
         init: function() {
@@ -444,6 +445,7 @@
             const g = this.ctx.createGain();
             o.connect(g); g.connect(this.ctx.destination);
 
+            // SFX LOGIC - NOT AFFECTING MUSIC
             if(key === 'intro') { 
                 o.type = 'sine'; o.frequency.setValueAtTime(60, t); 
                 g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4, t + 2); g.gain.exponentialRampToValueAtTime(0.001, t + 6);
@@ -824,13 +826,10 @@
             await poetChat("Yee ngeremehin 😎");
             await poetChat("Ehem ehem... 🎤");
             
-            // --- LOGIC A: PLAY LAGU 1 ---
+            // --- LOGIC A: PLAY LAGU 1 (NO VOLUME/FADE TRICKS) ---
             if(s1) {
                 s1.currentTime = 0;
                 s1.play().catch(e=>{});
-                
-                // TIDAK ADA LOGIC LANJUT LAGU 2 DISINI
-                // LAGU 2 AKAN DIPANGGIL SAAT SCENE SALJU
             }
             
             await new Promise(r => setTimeout(r, 5000));
@@ -841,7 +840,7 @@
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            // --- LOGIC B: PLAY LAGU 2 LANGSUNG ---
+            // --- LOGIC B: PLAY LAGU 2 LANGSUNG (NO VOLUME/FADE TRICKS) ---
             if(s2) {
                 s2.currentTime = 0;
                 s2.play().catch(e=>{});
@@ -920,9 +919,9 @@
     }
 
     function chatWhatsApp() {
-        // GANTI NOMOR DI SINI (Format: 628...)
+        // --- GANTI NOMOR DI SINI (WAJIB GANTI) ---
         let myNumber = "62895328424441"; 
-        let msg = "*S.O.S* _Cila butuh adick Aksa_";
+        let msg = "*S.O.S* _Cila butuh adick Aksa";
 
         window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(msg)}`, '_blank');
         
@@ -957,8 +956,7 @@
 
         await poetChat("Kayanya, salju mulai turun...");
         
-        // --- AUDIO: CEK APAKAH LAGU 2 PERLU DIPUTAR ---
-        // Jika Lagu 2 belum main (karena tadi pilih A), maka mainkan sekarang
+        // --- AUDIO: PLAY LAGU 2 JIKA BELUM MAIN (LOGIC A) ---
         const s2 = document.getElementById('bgm-song');
         if(s2 && s2.paused) {
             s2.play().catch(e=>{});
