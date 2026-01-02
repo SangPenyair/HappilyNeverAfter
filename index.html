@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Urbanist:wght@300;400;600;700&family=Dancing+Script:wght@600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS VISUAL (STABIL & RESPONSIVE) --- */
         :root {
             --midnight-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             --newyear-grad: linear-gradient(to bottom, #10002b, #240046, #3c096c);
@@ -199,7 +198,7 @@
         }
         @keyframes dropDown { to { top: 100%; opacity: 0; transform: rotate(45deg); } }
 
-        /* FRAME HP (MOBILE NATIVE) */
+        /* FRAME HP */
         #mobile-frame {
             position: relative;
             width: 100%;
@@ -431,7 +430,7 @@
     </div>
 
 <script>
-    // --- AUDIO SYSTEM (NO VOLUME LOGIC - JUST PLAY/PAUSE) ---
+    // --- AUDIO SYSTEM (CLEAN) ---
     const AudioSys = {
         ctx: null,
         init: function() {
@@ -595,15 +594,7 @@
     }
 
     function enterGame() {
-        // AUDIO START (NO VOLUME LOGIC)
         AudioSys.play('open');
-        
-        // --- TRICK MOBILE (WAJIB): Pancing play/pause kedua lagu ---
-        const s1 = document.getElementById('uke-song');
-        const s2 = document.getElementById('bgm-song');
-        if(s1) { s1.play().then(()=>s1.pause()).catch(e=>{}); }
-        if(s2) { s2.play().then(()=>s2.pause()).catch(e=>{}); }
-
         const overlay = document.getElementById('start-overlay');
         overlay.classList.add('blur-out-active');
         setTimeout(() => {
@@ -833,17 +824,13 @@
             await poetChat("Yee ngeremehin 😎");
             await poetChat("Ehem ehem... 🎤");
             
-            // --- MAIN UKULELE (A) ---
+            // --- LOGIC A: PLAY LAGU 1 ---
             if(s1) {
-                // TRICK: Pancing Lagu 2 sebentar biar HP ngasih izin nanti
-                if(s2) { s2.play().then(()=>s2.pause()).catch(e=>{}); }
-
                 s1.currentTime = 0;
                 s1.play().catch(e=>{});
                 
-                // EVENT: LAGU 1 SELESAI
-                // KITA GAK LANGSUNG NYALAIN LAGU 2 DI SINI
-                // BIAR NYALANYA PAS SALJU TURUN AJA (LEBIH DRAMATIS)
+                // TIDAK ADA LOGIC LANJUT LAGU 2 DISINI
+                // LAGU 2 AKAN DIPANGGIL SAAT SCENE SALJU
             }
             
             await new Promise(r => setTimeout(r, 5000));
@@ -854,7 +841,7 @@
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            // --- MAIN BGM LANGSUNG (B) ---
+            // --- LOGIC B: PLAY LAGU 2 LANGSUNG ---
             if(s2) {
                 s2.currentTime = 0;
                 s2.play().catch(e=>{});
@@ -903,8 +890,8 @@
         else if(c=='B') { 
             princessChat("Udah engga lanjut nih 😮‍💨"); 
             updateHearts(1); 
-            await poetChat("Tu kan mending sama gw anjir, wkwk canda"); 
-            await poetChat("Tapi ya, semoga kedepannya u bisa tau ya apa yang u butuh sebenernya, karena apa yang paling u MAU terkadang bukan yang sebenernya paling u BUTUHIN"); 
+            await poetChat("Tu kan mending sama gw anjir, wkwk"); 
+            await poetChat("Tapi ya, semoga u bisa tau ya apa yang u butuh sebenernya, karena apa yang paling u mau terkadang bukan yang sebenernya paling u butuhin"); 
             nextFinal(); 
         }
         else {
@@ -933,9 +920,9 @@
     }
 
     function chatWhatsApp() {
-        // --- GANTI NOMOR DI SINI (WAJIB GANTI) ---
+        // GANTI NOMOR DI SINI (Format: 628...)
         let myNumber = "62895328424441"; 
-        let msg = "*S.O.S* _Cila butuh adik Aksa_";
+        let msg = "*S.O.S* _Cila butuh adick Aksa_";
 
         window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(msg)}`, '_blank');
         
@@ -945,7 +932,7 @@
 
     // --- PHASE 2: BRIDGE (CHRISTMAS) ---
     async function nextFinal() {
-        await poetChat("Gw keasikan ngobrol sampe lupa nanya, gimana kabar u...?"); await poetChat("Tuan Putri.. Cila?");
+        await poetChat("Gw keasikan ngobrol sampe lupa nanya, gimana kabar u...?"); await poetChat("Tuan Putri.. Cilla?");
         showOptions([{ text: "Puji Tuhan, Alhamdulillah, semua aman-aman aza ko, BEST! ✨", action: ()=>fin('A') }, { text: "Ya gitu-gitu ajaa sii 😐", action: ()=>fin('B') }, { text: "Puji Tuhan baik semuaa, tapi kangen adik penyair i 🥺💛", action: ()=>fin('C') }]);
     }
 
@@ -971,7 +958,7 @@
         await poetChat("Kayanya, salju mulai turun...");
         
         // --- AUDIO: CEK APAKAH LAGU 2 PERLU DIPUTAR ---
-        // Kalau pilih A tadi (uke main), sekarang saatnya BGM masuk
+        // Jika Lagu 2 belum main (karena tadi pilih A), maka mainkan sekarang
         const s2 = document.getElementById('bgm-song');
         if(s2 && s2.paused) {
             s2.play().catch(e=>{});
