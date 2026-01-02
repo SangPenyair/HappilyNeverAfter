@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Urbanist:wght@300;400;600;700&family=Dancing+Script:wght@600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 
     <style>
+        /* --- SEMUA CSS DIPERTAHANKAN DARI VERSI SEBELUMNYA --- */
         :root {
             --midnight-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             --newyear-grad: linear-gradient(to bottom, #10002b, #240046, #3c096c);
@@ -358,7 +359,7 @@
             font-family: 'Urbanist'; font-size: 0.8rem; letter-spacing: 2px; cursor: pointer;
         }
 
-        /* RESULT SCREEN (HIDDEN INITIALLY) */
+        /* RESULT SCREEN */
         #result-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--result-grad); z-index: 500;
@@ -440,7 +441,7 @@
     </div>
 
 <script>
-    // --- AUDIO SYSTEM ---
+    // --- AUDIO SYSTEM (DIPERTAHANKAN) ---
     const AudioSys = {
         ctx: null,
         init: function() {
@@ -1222,22 +1223,50 @@
     function initSnowEngine() {
         const c = UI.bgCanvas; const x = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
-        // REVISI: 50 PARTIKEL, UKURAN & SPEED RANDOM
-        const flakes = Array(50).fill().map(() => ({
-            x: Math.random()*c.width,
-            y: Math.random()*-c.height,
-            size: Math.random()*15 + 10, 
-            speed: Math.random()*1 + 0.5 
-        }));
+        // REVISI: 50 PARTIKEL, UKURAN & SPEED RANDOM (TIERED)
+        const flakes = Array(50).fill().map(() => {
+            const tier = Math.random();
+            let size, speed, opacity;
+            // 60% Kecil Buram (Blur dots)
+            if (tier < 0.6) { 
+                size = Math.random() * 5 + 3; // 3px - 8px
+                speed = Math.random() * 0.5 + 0.2; // Sangat lambat
+                opacity = Math.random() * 0.3 + 0.2; // Transparan
+            } 
+            // 30% Sedang
+            else if (tier < 0.9) {
+                size = Math.random() * 8 + 8; // 8px - 16px
+                speed = Math.random() * 0.8 + 0.5; // Sedang
+                opacity = Math.random() * 0.3 + 0.5;
+            } 
+            // 10% Agak Besar
+            else { 
+                size = Math.random() * 10 + 16; // 16px - 26px
+                speed = Math.random() * 1 + 0.8; // Cepat
+                opacity = 0.9;
+            }
+            return {
+                x: Math.random()*c.width,
+                y: Math.random()*-c.height,
+                size: size, speed: speed, opacity: opacity,
+                drift: Math.random() * 0.2 - 0.1 // Sedikit gerakan kiri-kanan
+            };
+        });
+
         function loop() {
             x.clearRect(0,0,c.width,c.height);
             if(isSnowing) {
-                x.fillStyle = "rgba(255,255,255,0.8)";
                 flakes.forEach(f => {
+                    x.fillStyle = `rgba(255,255,255,${f.opacity})`;
                     x.font = f.size + "px Arial";
                     x.fillText("❄", f.x, f.y);
                     f.y += f.speed;
-                    if(f.y > c.height) f.y = -20;
+                    f.x += f.drift;
+                    // Reset ke atas acak biar ga barengan
+                    if(f.y > c.height + 50) {
+                        f.y = -Math.random() * 50;
+                        f.x = Math.random() * c.width;
+                    }
                 });
                 requestAnimationFrame(loop);
             } else { x.clearRect(0,0,c.width,c.height); }
