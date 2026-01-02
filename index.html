@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Urbanist:wght@300;400;600;700&family=Dancing+Script:wght@600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS SAMA PERSIS DENGAN VERSI MOBILE NATIVE FIX (BETA 4.0) --- */
         :root {
             --midnight-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             --newyear-grad: linear-gradient(to bottom, #10002b, #240046, #3c096c);
@@ -57,12 +56,13 @@
         }
 
         /* 2026 TEXT CINEMATIC */
+        /* REVISI: FONT SIZE DIPERKECIL BIAR GAK KEPOTONG DI HP */
         #year-text {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-family: 'Cinzel', serif; font-size: 5rem; color: var(--gold);
+            font-family: 'Cinzel', serif; font-size: 3rem; color: var(--gold);
             text-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
-            z-index: 50; opacity: 0; pointer-events: none; letter-spacing: 15px;
-            text-align: center; width: 100%;
+            z-index: 50; opacity: 0; pointer-events: none; letter-spacing: 10px;
+            text-align: center; width: 100%; padding: 0 20px;
         }
         .reveal-year { animation: blurFocus 6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
         .switch-text-anim { animation: textSwitch 4s forwards; }
@@ -195,7 +195,7 @@
         }
         @keyframes cardIn { from { opacity:0; transform:translateY(30px) rotate(3deg); } to { opacity:1; transform:translateY(0) rotate(-1deg); } }
 
-        /* HEART ANIMATION FIX */
+        /* HEART ANIMATION */
         .flying-heart {
             position: fixed; top: 50%; left: 50%; 
             transform: translate(-50%, -50%) scale(0);
@@ -209,7 +209,7 @@
         }
         @keyframes dropDown { to { top: 100%; opacity: 0; transform: rotate(45deg); } }
 
-        /* FRAME HP (FIX FOR MOBILE) */
+        /* FRAME HP (MOBILE NATIVE) */
         #mobile-frame {
             position: relative;
             width: 100%;
@@ -319,21 +319,6 @@
         }
         .text-input.error-shake { border-color: red; animation: shake 0.4s; background: rgba(255,0,0,0.1); }
         .send-btn { background: var(--gold); border: none; width: 45px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        .gold-pop {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0);
-            font-size: 6rem; z-index: 10000; pointer-events: none;
-            filter: drop-shadow(0 0 20px gold);
-            animation: goldBoom 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-        }
-        @keyframes goldBoom {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            20% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
-            80% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
-            100% { top: 5%; left: 90%; transform: scale(0); opacity: 0; }
-        }
-        .float-text { position: fixed; z-index: 10000; font-weight: bold; font-size: 1.5rem; text-shadow: 0 0 5px black; pointer-events: none; animation: floatFade 1s forwards; }
-        @keyframes floatFade { to { opacity: 0; transform: translateY(-30px); } }
 
         /* START OVERLAY */
         #start-overlay {
@@ -612,7 +597,7 @@
     }
 
     function enterGame() {
-        AudioSys.play('open');
+        playWithFade('open', 0.5); // Gunakan fungsi fade baru
         const overlay = document.getElementById('start-overlay');
         overlay.classList.add('blur-out-active');
         setTimeout(() => {
@@ -620,6 +605,35 @@
             overlay.remove();
             runScript();
         }, 1400);
+    }
+
+    // --- NEW HELPER: AUDIO FADE IN ---
+    function playWithFade(key, maxVol = 1.0) {
+        if(key === 'open' || key === 'intro' || key === 'bgm-song' || key === 'uke-song') {
+            // Khusus lagu
+            // Logic fade in manual akan diterapkan di tempat pemanggilan
+            AudioSys.play(key); // Fallback ke beep/sfx biasa
+        } else {
+            AudioSys.play(key);
+        }
+    }
+
+    function playAudioFadeIn(elementId, maxVol = 1.0) {
+        const audio = document.getElementById(elementId);
+        if (audio) {
+            audio.volume = 0;
+            audio.play().then(() => {
+                let vol = 0;
+                const interval = setInterval(() => {
+                    if (vol < maxVol) {
+                        vol += 0.05;
+                        audio.volume = Math.min(vol, maxVol);
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 100); // 2 detik fade in
+            }).catch(e => console.log("Audio autoplay blocked", e));
+        }
     }
 
     function scrollDown() { UI.chat.scrollTop = UI.chat.scrollHeight; }
@@ -771,14 +785,6 @@
         setTimeout(() => el.remove(), 1000);
     }
 
-    function playLagu2() {
-        const bgm = document.getElementById('bgm-song');
-        if(bgm) {
-            bgm.volume = 0.5;
-            bgm.play().catch(e => console.log("Audio autoplay blocked"));
-        }
-    }
-
     // --- PHASE 1: GAME CORE ---
     async function runScript() {
         await new Promise(r=>setTimeout(r,1000));
@@ -843,7 +849,6 @@
         UI.input.innerHTML = '';
         if(c=='A') { 
             const s1 = document.getElementById('uke-song');
-            const s2 = document.getElementById('bgm-song');
             
             princessChat("Widih sok banget, emang bisa? Wkwk coba deh 😏"); 
             updateHearts(1); 
@@ -851,14 +856,13 @@
             await poetChat("Ehem ehem... 🎤");
             
             if(s1) {
-                s1.currentTime = 0;
-                s1.volume = 1.0;
-                s1.play().catch(e=>{});
+                // Mainkan Lagu 1 dengan Fade In
+                playAudioFadeIn('uke-song', 1.0);
                 
                 // EVENT: LAGU 1 SELESAI -> JEDA 2s -> LAGU 2 MAIN
                 s1.onended = function() {
                     setTimeout(() => {
-                        if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
+                        playAudioFadeIn('bgm-song', 0.5); // Lagu 2 masuk halus
                     }, 2000);
                 };
             }
@@ -871,9 +875,8 @@
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            // LANGSUNG MAIN LAGU 2
-            const s2 = document.getElementById('bgm-song');
-            if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
+            // LANGSUNG MAIN LAGU 2 (FADE IN)
+            playAudioFadeIn('bgm-song', 0.5);
             
             q2();
         }
@@ -980,7 +983,6 @@
 
         await poetChat("Kayanya, salju mulai turun...");
         
-        // REVISI: JEDA DIKURANGI JADI 1 DETIK (biar langsung turun)
         await new Promise(r=>setTimeout(r, 1000));
 
         isSnowing = true;
@@ -1085,7 +1087,8 @@
         cMsg.innerText = "Semoga doa yang u harapkan tercapai, apapun itu";
         cOverlay.style.opacity = 1;
 
-        await new Promise(r=>setTimeout(r, 3000));
+        // REVISI: JEDA JADI 4 DETIK
+        await new Promise(r=>setTimeout(r, 4000));
         cOverlay.style.opacity = 0; 
         
         if(state.gold) goldenPromise(); else finalTransition();
@@ -1210,13 +1213,7 @@
     function initSnowEngine() {
         const c = UI.bgCanvas; const x = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
-        // REVISI: JUMLAH SALJU DIKURANGI (JADI 50) DAN KECEPATAN DIKURANGI
-        const flakes = Array(50).fill().map(() => ({
-            x: Math.random()*c.width,
-            y: Math.random()*-c.height,
-            size: Math.random()*8+4,
-            speed: Math.random()*1 + 0.5 // KECEPATAN LEBIH LAMBAT (0.5 - 1.5)
-        }));
+        const flakes = Array(50).fill().map(() => ({ x: Math.random()*c.width, y: Math.random()*-c.height, size: Math.random()*8+4, speed: Math.random()*1+0.5 }));
         function loop() {
             x.clearRect(0,0,c.width,c.height);
             if(isSnowing) {
