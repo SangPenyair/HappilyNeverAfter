@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Urbanist:wght@300;400;600;700&family=Dancing+Script:wght@600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS SAMA SEPERTI VERSI BETA 4.5 (FINAL VISUAL) --- */
+        /* --- CSS TETAP SAMA (STABIL) --- */
         :root {
             --midnight-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             --newyear-grad: linear-gradient(to bottom, #10002b, #240046, #3c096c);
@@ -835,18 +835,20 @@
             await poetChat("Yee ngeremehin 😎");
             await poetChat("Ehem ehem... 🎤");
             
+            // A. PLAY LAGU 1 (Ukulele)
             if(s1) {
                 s1.volume = 1.0;
                 s1.play().catch(e=>{});
                 
-                // EVENT: LAGU 1 SELESAI -> JEDA 2s -> LAGU 2 MAIN
-                s1.onended = function() {
-                    setTimeout(() => {
-                        if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
-                    }, 2000);
-                };
+                // --- TRICK MOBILE: PANCING LAGU 2 ---
+                // Putar 0.1 detik lalu pause, biar dianggap "sudah dipencet user"
+                if(s2) {
+                    s2.volume = 0.5;
+                    s2.play().then(() => s2.pause()).catch(e=>{});
+                }
             }
             
+            // Jeda visual
             await new Promise(r => setTimeout(r, 5000));
             q2();
         }
@@ -855,8 +857,11 @@
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            // LANGSUNG MAIN LAGU 2
-            if(s2) { s2.volume = 0.5; s2.play().catch(e=>{}); }
+            // B. LANGSUNG PLAY LAGU 2 (BGM)
+            if(s2) {
+                s2.volume = 0.5;
+                s2.play().catch(e=>{});
+            }
             
             q2();
         }
@@ -963,11 +968,19 @@
 
         await poetChat("Kayanya, salju mulai turun...");
         
+        // JEDA 1 DETIK
         await new Promise(r=>setTimeout(r, 1000));
 
         isSnowing = true;
         UI.bgCanvas.style.opacity = 1;
         initSnowEngine();
+        
+        // AUDIO LOGIC: Jika Lagu 2 belum main (karena pilih opsi A), mainkan sekarang
+        const s2 = document.getElementById('bgm-song');
+        if(s2 && s2.paused) {
+            s2.volume = 0.5;
+            s2.play().catch(e=>{});
+        }
         
         await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
         
@@ -1067,7 +1080,7 @@
         cMsg.innerText = "Semoga doa yang u harapkan tercapai, apapun itu";
         cOverlay.style.opacity = 1;
 
-        // REVISI: JEDA 4 DETIK
+        // JEDA 4 DETIK
         await new Promise(r=>setTimeout(r, 4000));
         cOverlay.style.opacity = 0; 
         
@@ -1193,7 +1206,7 @@
     function initSnowEngine() {
         const c = UI.bgCanvas; const x = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
-        // REVISI: 50 PARTIKEL, UKURAN & SPEED RANDOM (TIERED)
+        // 50 PARTIKEL, UKURAN & SPEED RANDOM (TIERED)
         const flakes = Array(50).fill().map(() => {
             const tier = Math.random();
             let size, speed, opacity;
