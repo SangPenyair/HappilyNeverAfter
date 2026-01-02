@@ -358,7 +358,7 @@
             font-family: 'Urbanist'; font-size: 0.8rem; letter-spacing: 2px; cursor: pointer;
         }
 
-        /* RESULT SCREEN (HIDDEN INITIALLY) */
+        /* RESULT SCREEN */
         #result-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--result-grad); z-index: 500;
@@ -404,11 +404,11 @@
                 <span id="val-red" style="font-weight:bold;">0</span>
             </div>
             <div class="score-row" id="row-white">
-                <span>Silver Lining (SOS)</span>
+                <span>White Heart (SOS)</span>
                 <span id="val-white" style="font-weight:bold;">...</span>
             </div>
             <div class="score-row" id="row-gold">
-                <span>Golden Promise</span>
+                <span>Golden Heart</span>
                 <span id="val-gold" style="font-weight:bold;">...</span>
             </div>
             <div class="score-row score-total" id="row-total">
@@ -1219,13 +1219,21 @@
     function initSnowEngine() {
         const c = UI.bgCanvas; const x = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
-        const flakes = Array(50).fill().map(() => ({ x: Math.random()*c.width, y: Math.random()*-c.height, size: Math.random()*8+4, speed: Math.random()*1+0.5 }));
+        // VARIATION: 50 particles, random size 5-15, speed 0.5-1.5
+        const flakes = Array(50).fill().map(() => ({
+            x: Math.random()*c.width,
+            y: Math.random()*-c.height,
+            size: Math.random()*10+5, 
+            speed: Math.random()*1+0.5
+        }));
         function loop() {
             x.clearRect(0,0,c.width,c.height);
             if(isSnowing) {
-                x.fillStyle = "rgba(255,255,255,0.8)"; x.font = "15px Arial";
+                x.fillStyle = "rgba(255,255,255,0.8)";
                 flakes.forEach(f => {
-                    x.fillText("❄", f.x, f.y); f.y += f.speed;
+                    x.font = f.size + "px Arial"; // Dynamic size applied here
+                    x.fillText("❄", f.x, f.y);
+                    f.y += f.speed;
                     if(f.y > c.height) f.y = -20;
                 });
                 requestAnimationFrame(loop);
