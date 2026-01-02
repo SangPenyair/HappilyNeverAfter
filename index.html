@@ -194,7 +194,7 @@
         }
         @keyframes cardIn { from { opacity:0; transform:translateY(30px) rotate(3deg); } to { opacity:1; transform:translateY(0) rotate(-1deg); } }
 
-        /* HEART ANIMATION FIX */
+        /* HEART ANIMATION */
         .flying-heart {
             position: fixed; top: 50%; left: 50%; 
             transform: translate(-50%, -50%) scale(0);
@@ -208,7 +208,7 @@
         }
         @keyframes dropDown { to { top: 100%; opacity: 0; transform: rotate(45deg); } }
 
-        /* FRAME HP (FIX FOR MOBILE) */
+        /* FRAME HP (MOBILE NATIVE) */
         #mobile-frame {
             position: relative;
             width: 100%;
@@ -358,7 +358,7 @@
             font-family: 'Urbanist'; font-size: 0.8rem; letter-spacing: 2px; cursor: pointer;
         }
 
-        /* RESULT SCREEN */
+        /* RESULT SCREEN (HIDDEN INITIALLY) */
         #result-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--result-grad); z-index: 500;
@@ -458,12 +458,6 @@
                 o.type = 'sine'; o.frequency.setValueAtTime(60, t); 
                 g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4, t + 2); g.gain.exponentialRampToValueAtTime(0.001, t + 6);
                 o.start(t); o.stop(t+6);
-                setTimeout(() => {
-                    const o2 = this.ctx.createOscillator(); const g2 = this.ctx.createGain();
-                    o2.type='triangle'; o2.frequency.value=120; o2.connect(g2); g2.connect(this.ctx.destination);
-                    g2.gain.setValueAtTime(0, t); g2.gain.linearRampToValueAtTime(0.1, t+2); g2.gain.linearRampToValueAtTime(0, t+5);
-                    o2.start(t); o2.stop(t+5);
-                }, 100);
             }
             else if(key === 'open') {
                 const now = t;
@@ -610,7 +604,8 @@
     }
 
     function enterGame() {
-        playWithFade('open', 0.5); 
+        // AUDIO START (Fade In)
+        AudioSys.play('open');
         const overlay = document.getElementById('start-overlay');
         overlay.classList.add('blur-out-active');
         setTimeout(() => {
@@ -618,32 +613,6 @@
             overlay.remove();
             runScript();
         }, 1400);
-    }
-
-    function playWithFade(key, maxVol = 1.0) {
-        if(key === 'open' || key === 'intro' || key === 'bgm-song' || key === 'uke-song') {
-            AudioSys.play(key); 
-        } else {
-            AudioSys.play(key);
-        }
-    }
-
-    function playAudioFadeIn(elementId, maxVol = 1.0) {
-        const audio = document.getElementById(elementId);
-        if (audio) {
-            audio.volume = 0;
-            audio.play().then(() => {
-                let vol = 0;
-                const interval = setInterval(() => {
-                    if (vol < maxVol) {
-                        vol += 0.05;
-                        audio.volume = Math.min(vol, maxVol);
-                    } else {
-                        clearInterval(interval);
-                    }
-                }, 100); 
-            }).catch(e => console.log("Audio autoplay blocked", e));
-        }
     }
 
     function scrollDown() { UI.chat.scrollTop = UI.chat.scrollHeight; }
@@ -857,21 +826,42 @@
 
     async function q1(c) {
         UI.input.innerHTML = '';
+        const s1 = document.getElementById('uke-song');
+        const s2 = document.getElementById('bgm-song');
+
         if(c=='A') { 
-            const s1 = document.getElementById('uke-song');
-            
             princessChat("Widih sok banget, emang bisa? Wkwk coba deh 😏"); 
             updateHearts(1); 
             await poetChat("Yee ngeremehin 😎");
             await poetChat("Ehem ehem... 🎤");
             
+            // FADE IN LAGU 1
             if(s1) {
-                playAudioFadeIn('uke-song', 1.0);
-                
-                s1.onended = function() {
+                s1.currentTime = 0;
+                s1.volume = 0;
+                s1.play().then(() => {
+                    let v = 0;
+                    let fade = setInterval(() => {
+                        if(v < 1) { v += 0.1; s1.volume = v; }
+                        else clearInterval(fade);
+                    }, 200);
+                });
+
+                // SAAT LAGU 1 SELESAI, LANJUT LAGU 2
+                s1.onended = () => {
                     setTimeout(() => {
-                        playAudioFadeIn('bgm-song', 0.5); 
-                    }, 2000);
+                        if(s2) {
+                            s2.currentTime = 0;
+                            s2.volume = 0;
+                            s2.play().then(() => {
+                                let v2 = 0;
+                                let fade2 = setInterval(() => {
+                                    if(v2 < 0.5) { v2 += 0.05; s2.volume = v2; }
+                                    else clearInterval(fade2);
+                                }, 200);
+                            });
+                        }
+                    }, 2000); // Jeda 2 detik
                 };
             }
             
@@ -883,7 +873,18 @@
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            playAudioFadeIn('bgm-song', 0.5);
+            // LANGSUNG MAIN LAGU 2
+            if(s2) {
+                s2.currentTime = 0;
+                s2.volume = 0;
+                s2.play().then(() => {
+                    let v2 = 0;
+                    let fade2 = setInterval(() => {
+                        if(v2 < 0.5) { v2 += 0.05; s2.volume = v2; }
+                        else clearInterval(fade2);
+                    }, 200);
+                });
+            }
             
             q2();
         }
@@ -990,6 +991,7 @@
 
         await poetChat("Kayanya, salju mulai turun...");
         
+        // REVISI: JEDA 1 DETIK
         await new Promise(r=>setTimeout(r, 1000));
 
         isSnowing = true;
@@ -1094,6 +1096,7 @@
         cMsg.innerText = "Semoga doa yang u harapkan tercapai, apapun itu";
         cOverlay.style.opacity = 1;
 
+        // REVISI: JEDA 4 DETIK
         await new Promise(r=>setTimeout(r, 4000));
         cOverlay.style.opacity = 0; 
         
@@ -1219,19 +1222,19 @@
     function initSnowEngine() {
         const c = UI.bgCanvas; const x = c.getContext('2d');
         c.width = window.innerWidth; c.height = window.innerHeight;
-        // VARIATION: 50 particles, random size 5-15, speed 0.5-1.5
+        // REVISI: 50 PARTIKEL, UKURAN & SPEED RANDOM
         const flakes = Array(50).fill().map(() => ({
             x: Math.random()*c.width,
             y: Math.random()*-c.height,
-            size: Math.random()*10+5, 
-            speed: Math.random()*1+0.5
+            size: Math.random()*15 + 10, 
+            speed: Math.random()*1 + 0.5 
         }));
         function loop() {
             x.clearRect(0,0,c.width,c.height);
             if(isSnowing) {
                 x.fillStyle = "rgba(255,255,255,0.8)";
                 flakes.forEach(f => {
-                    x.font = f.size + "px Arial"; // Dynamic size applied here
+                    x.font = f.size + "px Arial";
                     x.fillText("❄", f.x, f.y);
                     f.y += f.speed;
                     if(f.y > c.height) f.y = -20;
