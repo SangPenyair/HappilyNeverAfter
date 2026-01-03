@@ -765,7 +765,7 @@
 
     async function sceneUkulele() {
         await addNarrative("Kamu mengambil Ukulele.");
-        await addNarrative("Jreng Jreng Jreng... (Petikan Ukulele yang sangat buruk)");
+        await addNarrative("Jreng Jreng Jreng... (Petikan Ukulelemu sangat buruk)");
         await poetChat("WEH, Ukulele gw!");
         await poetChat("Kalo mau nyuri seengganya bisa mainin!");
         await poetChat("Bentar... kamu kayak ga asing.");
@@ -800,19 +800,19 @@
             }, 400);
             
             document.getElementById('id-input').value = '';
-            document.getElementById('id-input').placeholder = "Salah orang...";
+            document.getElementById('id-input').placeholder = "Oh,Ternyata salah orang...";
         }
     }
 
     async function proceed() {
         await poetChat("Eh kirain siapa, ternyata Tuan Putri");
-        await addNarrative("Heart System Activated ❤️", 'system');
+        await addNarrative("HEART SYSTEM ACTIVATED ❤️", 'system');
         updateHearts(1);
         await poetChat("Lama ga ketemu yaa");
         await poetChat("Udah deket penghujung tahun ya, gak kerasa.");
         await poetChat("Btw...");
         await poetChat("Sini Ukulelenya gw mainin, mau denger gaa?");
-        showOptions([{ text: "Widih sok banget, emang bisa? Wkwk coba deh 😏", action: ()=>q1('A') }, { text: "Gausah, nanti malu maluin 🙄", action: ()=>q1('B') }]);
+        showOptions([{ text: "Wih sok banget, emang bisa? Wkwk coba deh 😏", action: ()=>q1('A') }, { text: "Gausah, nanti u malu maluin 🙄", action: ()=>q1('B') }]);
     }
 
     async function q1(c) {
@@ -824,7 +824,7 @@
             princessChat("Widih sok banget, emang bisa? Wkwk coba deh 😏"); 
             updateHearts(1); 
             await poetChat("Yee ngeremehin 😎");
-            await poetChat("Ehem ehem... 🎤");
+            await poetChat("Ehem ehem... 🎤🎸");
             
             // --- LOGIC A: PLAY LAGU 1 (NO VOLUME/FADE TRICKS) ---
             if(s1) {
@@ -883,7 +883,7 @@
         if(c=='A') { 
             princessChat("Puji Tuhan, Alhamdulillah yaa aman terkendali. 😇"); 
             updateHearts(1); 
-            await poetChat("Alhamdulillah, puji tuhan, semoga langgeng, lancar semua dan selalu baik-baik aja yaa, gw ikut seneng u sama bang windah"); 
+            await poetChat("Alhamdulillah, puji tuhan, semoga langgeng, lancar semua dan selalu baik-baik aja yaa, gw ikut seneng u sama dia"); 
             nextFinal(); 
         }
         else if(c=='B') { 
@@ -931,7 +931,7 @@
 
     // --- PHASE 2: BRIDGE (CHRISTMAS) ---
     async function nextFinal() {
-        await poetChat("Gw keasikan ngobrol sampe lupa nanya, gimana kabar u...?"); await poetChat("Tuan Putri.. Cilla?");
+        await poetChat("Gw keasikan ngobrol sampe lupa nanya, gimana kabar u...?"); await poetChat("Tuan Putri.. Cila?");
         showOptions([{ text: "Puji Tuhan, Alhamdulillah, semua aman-aman aza ko, BEST! ✨", action: ()=>fin('A') }, { text: "Ya gitu-gitu ajaa sii 😐", action: ()=>fin('B') }, { text: "Puji Tuhan baik semuaa, tapi kangen adik penyair i 🥺💛", action: ()=>fin('C') }]);
     }
 
@@ -1052,7 +1052,7 @@
         const letter = document.createElement('div');
         letter.className = 'letter-card';
         letter.innerHTML = `
-            <div style="border-bottom:1px solid #ddd; margin-bottom:10px; padding-bottom:5px;">Dear God,</div>
+            <div style="border-bottom:1px solid #ddd; margin-bottom:10px; padding-bottom:5px;">Dear God, ini doaku...</div>
             <div style="margin-bottom:15px; font-size:1.2rem;">"${wishText}"</div>
             <div style="text-align:right; font-size:0.9rem;">Tertanda,<br><b>Priscilla Annastasya Theophilia</b></div>
         `;
@@ -1120,7 +1120,7 @@
         UI.chat.innerHTML = ''; 
         let reply = "";
         
-        if(choice === 'pasangan') reply = "Semoga kita terikat di kehidupan selanjutnya sebagai pasangan paling hangat sedunia, lucu juga yaa bakal gimana \"Ketidaksengajaan\" yang pertemuin kita nanti";
+        if(choice === 'pasangan') reply = "Semoga kita terikat di kehidupan selanjutnya sebagai pasangan paling hangat sedunia. Btw, lucu juga yaa bakal gimana \"Ketidaksengajaan\" yang pertemuin kita nanti";
         if(choice === 'kakak') reply = "Semoga yaa, tapi u jangan galak-galak sama adick u inii, nanti kita pasti jadi duo troublemaker wkwk";
         if(choice === 'bestie') reply = "Lucu juga ya, entah bakal jadi partner in crime macam apa kitaa";
         
