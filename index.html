@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#051024">
+    <meta name="theme-color" content="#020617">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>The Poet & The Princess</title>
@@ -13,16 +13,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Urbanist:wght@300;400;600;700;800&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- LUXURY VARIABLES --- */
+        /* --- VARIABLES --- */
         :root {
             --primary-gold: #FFD700;
             --soft-gold: #FFE5B4;
-            --deep-space: #051024;
+            --deep-space: #020617;
             
             /* Chat Bubbles */
-            --poet-bubble: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.9));
+            --poet-bubble: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
             
-            /* Princess Bubble - MIDNIGHT WINTER BLUE */
+            /* Princess: Midnight Winter Blue (Deep Navy -> Cold Azure) */
             --princess-bubble: linear-gradient(135deg, rgba(23, 37, 84, 0.9), rgba(30, 58, 138, 0.85));
         }
 
@@ -32,7 +32,7 @@
             height: 100%; height: 100dvh; width: 100%;
             overflow: hidden; font-family: 'Urbanist', sans-serif; color: white;
             background: #020617; /* Base Black */
-            transition: background-color 3s ease;
+            transition: background 4s ease-in-out; /* Smooth transition for Magical Ending */
         }
 
         /* --- TEXTURES --- */
@@ -61,7 +61,7 @@
         /* --- BACKGROUND LAYERS --- */
         .bg-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
+            pointer-events: none; transition: opacity 3s ease;
         }
         
         #bg-blue { 
@@ -69,18 +69,26 @@
             background: linear-gradient(180deg, rgba(5,16,36,1) 0%, rgba(2,6,23,1) 100%);
         }
         
+        /* New Year Galaxy Purple */
         #bg-purple {
             z-index: -1;
-            /* Gradient Galaxy Purple untuk Tahun Baru */
             background: radial-gradient(circle at center, #4c1d95 0%, #2e1065 40%, #020617 90%);
             opacity: 0; 
-            transition: opacity 3s ease-in-out;
         }
         
+        /* Magical Golden Sunset (Hidden Ending) */
+        #bg-sunset {
+            z-index: 0; /* Above Purple */
+            background: linear-gradient(180deg, #4c1d95 0%, #db2777 40%, #f59e0b 80%, #78350f 100%);
+            opacity: 0;
+        }
+
         body.royal-mode #bg-purple { 
             opacity: 1 !important; 
             animation: galaxyPulse 8s infinite alternate ease-in-out;
         }
+        body.magical-mode #bg-sunset { opacity: 1 !important; }
+        body.magical-mode #bg-purple { opacity: 0 !important; }
         
         @keyframes galaxyPulse {
             0% { filter: brightness(1) hue-rotate(0deg); transform: scale(1); }
@@ -90,16 +98,18 @@
         /* CANVAS LAYERS */
         canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         
-        #global-canvas { z-index: 1; opacity: 1; }
+        #global-canvas { z-index: 1; opacity: 1; } /* Stars */
         #snow-canvas { z-index: 5; opacity: 1; pointer-events: none; }
+        #lantern-canvas { z-index: 6; opacity: 0; pointer-events: none; transition: opacity 2s;} /* Lampion */
         
         #firework-canvas { 
             z-index: 10; 
             opacity: 0; 
             transition: opacity 1s; 
-            filter: brightness(1.2) contrast(1.2);
+            filter: brightness(1.3) contrast(1.2);
         }
 
+        /* FROSTED GLASS OVERLAY */
         #frosted-glass-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 15; 
@@ -109,9 +119,11 @@
             transition: all 3s ease;
         }
         body.royal-mode #frosted-glass-layer {
-            backdrop-filter: blur(6px); 
-            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
             background: rgba(255, 255, 255, 0.01);
+        }
+        body.magical-mode #frosted-glass-layer {
+            backdrop-filter: blur(0px); background: transparent; /* Clear view for lanterns */
         }
 
         #firefly-canvas { z-index: 16; opacity: 0; transition: opacity 1s; }
@@ -200,10 +212,11 @@
             box-shadow: 5px 5px 20px rgba(0,0,0,0.2);
         }
         
+        /* Princess Bubble: Midnight Winter Blue */
         .princess-container .dialog-box { 
             background: var(--princess-bubble); 
             color: #fff; border-bottom-right-radius: 4px; 
-            box-shadow: -5px 5px 25px rgba(59, 130, 246, 0.3); 
+            box-shadow: -5px 5px 25px rgba(59, 130, 246, 0.3); /* Cold Blue Glow */
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
@@ -230,22 +243,18 @@
             box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
         }
 
-        /* --- PILIHAN: SAPPHIRE ICE GLASS (Senada dengan Winter) --- */
+        /* --- PILIHAN: SAPPHIRE ICE GLASS --- */
         .choice-btn {
-            /* Transparan Biru Royal (Sapphire) */
-            background: rgba(30, 58, 138, 0.35); 
-            /* Frosted Glass Tebal */
+            background: rgba(30, 58, 138, 0.35); /* Sapphire Tint */
             backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            /* Border Bersinar Cyan/Biru */
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            border: 1px solid rgba(56, 189, 248, 0.3); /* Cyan Border */
             
-            padding: 18px; border-radius: 20px; color: #e0f2fe; /* Ice White Text */
+            padding: 18px; border-radius: 20px; color: #e0f2fe;
             font-family: 'Urbanist'; font-weight: 600; text-align: center; letter-spacing: 0.5px;
             cursor: pointer; position: relative; overflow: hidden;
             opacity: 0; animation: slideUpBlur 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             
-            /* Pendaran Biru Halus */
             box-shadow: 0 4px 20px rgba(23, 37, 84, 0.4);
             text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
         }
@@ -399,7 +408,7 @@
         
         #year-text { 
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); 
-            font-family: 'Cinzel', serif; font-size: 5rem; color: var(--primary-gold); 
+            font-family: 'Cinzel', serif; font-size: 8vw; color: var(--primary-gold); 
             text-shadow: 0 0 60px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255,215,0,0.8); 
             z-index: 60; 
             opacity: 0; pointer-events: none; letter-spacing: 10px; 
@@ -450,9 +459,11 @@
 
     <div id="bg-blue" class="bg-layer"></div>
     <div id="bg-purple" class="bg-layer"></div>
+    <div id="bg-sunset" class="bg-layer"></div>
 
     <canvas id="global-canvas"></canvas> 
     <canvas id="snow-canvas"></canvas>
+    <canvas id="lantern-canvas"></canvas>
     
     <canvas id="firework-canvas"></canvas> 
     
@@ -617,6 +628,7 @@
         yearText: document.getElementById('year-text'),
         bgCanvas: document.getElementById('global-canvas'),
         snowCanvas: document.getElementById('snow-canvas'),
+        lanternCanvas: document.getElementById('lantern-canvas'),
         fwCanvas: document.getElementById('firework-canvas'),
         ffCanvas: document.getElementById('firefly-canvas'),
         result: document.getElementById('result-screen'),
@@ -632,7 +644,7 @@
     };
     
     let state = { hearts: 0, gold: false, white: false };
-    let isSnowing = false, isFireworks = false, isFireflies = false;
+    let isSnowing = false, isFireworks = false, isFireflies = false, isLanterns = false;
     let fireworkPhase = 'NONE'; 
 
     // --- UTILS ---
@@ -743,14 +755,24 @@
             setTimeout(() => { fly.style.left = targetX + 'px'; fly.style.top = targetY + 'px'; fly.style.transform = "translate(-50%, -50%) scale(0.2)"; fly.style.opacity = 0; }, 800);
             setTimeout(() => {
                 fly.remove(); state.hearts += val; UI.hearts.innerText = state.hearts; AudioSys.play('levelup'); UI.heartIcon.classList.add('heart-pump');
-                const float = document.createElement('div'); float.className = 'float-score'; float.innerText = "+1 ❤️"; float.style.color = "#4cd964"; float.style.left = targetX + 'px'; float.style.top = (targetY + 30) + 'px'; document.body.appendChild(float); setTimeout(()=>float.remove(), 1500); setTimeout(()=>UI.heartIcon.classList.remove('heart-pump'), 400);
+                
+                // DYNAMIC POPUP TEXT
+                const float = document.createElement('div'); float.className = 'float-score'; 
+                float.innerText = `+${val} ❤️`; 
+                float.style.color = "#4cd964"; float.style.left = targetX + 'px'; float.style.top = (targetY + 30) + 'px'; 
+                document.body.appendChild(float); setTimeout(()=>float.remove(), 1500); setTimeout(()=>UI.heartIcon.classList.remove('heart-pump'), 400);
             }, 1600);
         } else {
             AudioSys.play('break'); UI.heartIcon.innerHTML = "💔"; UI.heartIcon.classList.add('heart-cracking');
             const fall = document.createElement('div'); fall.className = 'falling-piece'; fall.innerText = "💔"; fall.style.left = targetX + 'px'; fall.style.top = targetY + 'px'; document.body.appendChild(fall);
             setTimeout(() => {
                 state.hearts += val; UI.hearts.innerText = state.hearts; UI.heartIcon.classList.remove('heart-cracking'); UI.heartIcon.innerHTML = "❤️";
-                const float = document.createElement('div'); float.className = 'float-score'; float.innerText = "-1 💔"; float.style.color = "#ff3b30"; float.style.left = targetX + 'px'; float.style.top = (targetY + 30) + 'px'; document.body.appendChild(float); setTimeout(()=>float.remove(), 1500); fall.remove();
+                
+                // DYNAMIC MINUS
+                const float = document.createElement('div'); float.className = 'float-score'; 
+                float.innerText = `${val} 💔`; 
+                float.style.color = "#ff3b30"; float.style.left = targetX + 'px'; float.style.top = (targetY + 30) + 'px'; 
+                document.body.appendChild(float); setTimeout(()=>float.remove(), 1500); fall.remove();
             }, 1000);
         }
     }
@@ -803,7 +825,7 @@
 
     async function proceed() {
         await poetChat("Eh kirain siapa, ternyata Tuan Putri");
-        AudioSys.play('system'); notifMsg("❤️", "HEART SYSTEM: ACTIVATED", "system");
+        AudioSys.play('system'); notifMsg("❤️", "HEART SYSTEM ACTIVATED", "system");
         UI.heartContainer.classList.add('reveal');
         await new Promise(r=>setTimeout(r, 2000));
         updateHearts(1);
@@ -826,7 +848,7 @@
     async function q2r(c) {
         if(c=='A') { princessChat("HAHAHA si anj, inget aja loh 😂"); updateHearts(1); await poetChat("Siapa si yang ga inget malem-malem u gabisa tidur terus pamer skill yang u bangga-banggakan itu"); }
         else if(c=='B') { princessChat("Emang iya ya? i ga inget ah 🤔"); updateHearts(-1); await poetChat("Yeuu kocak"); }
-        else { princessChat("Inget dongg, sekeren itu kan i sampe u ingett HAHAHA 😎"); updateHearts(2); await poetChat("woiyaaa jelas dong, gw selalu bangga punya u waktu itu wkwk"); }
+        else { princessChat("Inget dongg, sekeren itu kan i sampe u ingett HAHAHA 😎"); updateHearts(3); await poetChat("woiyaaa jelas dong, gw selalu bangga punya u waktu itu wkwk"); }
         q3();
     }
 
@@ -837,7 +859,7 @@
 
     async function q3r(c) {
         if(c=='A') { princessChat("Aduh dimana yak Ukulele i, udah ketimbun debu kayanya 💀"); updateHearts(-2); await poetChat("BERSIHIN KAMAR GAK U SEKARANG! 🔪"); await poetChat("Masih sering berantakan kayak waktu itu pasti, baju numpuk dimana-mana"); }
-        else if(c=='B') { princessChat("MASIH DONG! i bisa mainin banyak lagu sekarang 🎸"); updateHearts(2); await poetChat("Makin bangga aja lagi gw sama u"); }
+        else if(c=='B') { princessChat("MASIH DONG! i bisa mainin banyak lagu sekarang 🎸"); updateHearts(3); await poetChat("Makin bangga aja lagi gw sama u"); }
         else { princessChat("Kalo gabut doang i mainin 😶"); updateHearts(1); await poetChat("Yaudalaa, seengganya gabutnya ga buka live tiktok Batik Christo lagi"); }
         q4();
     }
@@ -854,13 +876,13 @@
     }
 
     async function sosTrigger() {
-        princessChat("Iya i serius loh 🥺"); AudioSys.play('siren'); state.white = true; updateHearts(1); UI.inv.innerHTML += "🤍"; UI.sos.style.animation = "sosFlash 0.5s 3"; notifMsg("🔔", "SYSTEM INFO: Contacting Poet...", "white");
-        await poetChat("RED CODE!! 🚨 Meluncurkan rudal pelukan dan ciuman sekarang juga! Bertahan di sana prajurit, bantuan datang!");
+        princessChat("Iya i serius loh 🥺"); AudioSys.play('siren'); state.white = true; updateHearts(1); UI.inv.innerHTML += "🤍"; UI.sos.style.animation = "sosFlash 0.5s 3"; notifMsg("🔔", "FUNFACT : NOMOR WA PENYAIR MASIH SAMA...", "white");
+        await poetChat("RED CODE!! 🚨 Meluncurkan rudal pelukan dan ciuman! Bertahan di sana, bantuan datang!");
         showOptions([ { text: "Chat Sekarang 💬", action: chatWhatsApp }, { text: "Nanti Aja Deh 🍂", action: () => { princessChat("Nanti Aja Deh 🍂"); poetChat("Okee simpen dulu aja").then(nextFinal); } } ]);
     }
 
     function chatWhatsApp() {
-        let myNumber = "62895328424441"; let msg = "*S.O.S* _Cila butuh adick Aksa";
+        let myNumber = "62895328424441"; let msg = "*S.O.S* _Cila butuh adick Aksa_";
         window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(msg)}`, '_blank');
         princessChat("Chat Sekarang 💬"); poetChat("Ditunggu notifnya ya...").then(nextFinal);
     }
@@ -891,7 +913,7 @@
         isSnowing = true;
         await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
         await new Promise(r=>setTimeout(r, 1000));
-        const m = ["Oh iyaa, Selamat Natal yaa..","Jujur, u berarti banget buat gw sebagai apapun","Bahkan sama u terakhir kali gw ngerasain punya kakak yang sesayang itu sama gw, punya seseorang yang sepeduli itu...","Tahun baru nanti, dan tahun-tahun berikutnya..","Gw selalu doain yang terbaik buat u","Selamat Natal..."];
+        const m = ["Oh iyaa, Selamat Natal yaa..","Jujur, u berarti banget buat gw sebagai apapun","Bahkan sama u terakhir kali gw ngerasain punya kakak yang sesayang dan sepeduli itu sama gw...","Tahun baru nanti, dan tahun-tahun berikutnya..","Gw selalu doain yang terbaik buat u","Meskipun terlambat, Selamat Natal..."];
         for(let t of m) { await poetChat(t, 55); await new Promise(r=>setTimeout(r, 1500)); }
         triggerNewYearScene();
     }
@@ -961,8 +983,8 @@
     async function runPhaseWish() {
         await poetChat("Tahun ini apa yang mau u capai?", 60);
         await poetChat("Mau naklukin apa lagi?", 60);
-        await poetChat("Kasih tau yaa, bakal kasih Aaamiin paling serius gw", 60);
-        await poetChat("dua agama kurang powerful apa tu, wkwk", 60);
+        await poetChat("Kasih tau yaa, bakal gw kasih Aamiin paling serius", 60);
+        await poetChat("dua agama kurang powerful apa wkwk", 60);
         showInput("Tulis harapanmu...", (val) => { princessChat(val); UI.input.innerHTML = ''; runPhaseLetter(val); });
     }
 
@@ -970,7 +992,7 @@
         await new Promise(r=>setTimeout(r, 1000));
         const letter = document.createElement('div');
         letter.className = 'letter-card';
-        letter.innerHTML = `<div style="border-bottom:1px solid rgba(0,0,0,0.1); margin-bottom:15px; padding-bottom:5px; font-size:1rem; opacity:0.6;">Dear God,</div><div style="margin-bottom:20px; font-size:1.6rem; line-height:1.4;">"${wishText}"</div><div style="text-align:right; font-size:1rem; margin-top:10px;">Priscilla A.T.</div>`;
+        letter.innerHTML = `<div style="border-bottom:1px solid rgba(0,0,0,0.1); margin-bottom:15px; padding-bottom:5px; font-size:1rem; opacity:0.6;">Dear God, Aku berharap... </div><div style="margin-bottom:20px; font-size:1.6rem; line-height:1.4;">"${wishText}"</div><div style="text-align:right; font-size:1rem; margin-top:10px;">Priscilla A.T.</div>`;
         UI.chat.appendChild(letter); scrollDown(); AudioSys.play('heaven');
         await new Promise(r=>setTimeout(r, 3500));
         UI.cinematicMsg.innerText = "Semoga doa yang u harapkan tercapai, apapun itu";
@@ -1002,12 +1024,12 @@
 
     async function melancholy(choice) {
         UI.chat.innerHTML = ''; let reply = "";
-        if(choice === 'pasangan') reply = "Semoga kita terikat di kehidupan selanjutnya sebagai pasangan paling hangat sedunia. Btw, lucu juga yaa bakal gimana \"Ketidaksengajaan\" yang pertemuin kita nanti";
+        if(choice === 'pasangan') reply = "Semoga kita terikat di kehidupan selanjutnya sebagai pasangan paling hangat sedunia. Btw, bakal gimana \"Ketidaksengajaan\" yang pertemuin kita nanti ya...";
         if(choice === 'kakak') reply = "Semoga yaa, tapi u jangan galak-galak sama adick u inii, nanti kita pasti jadi duo troublemaker wkwk";
         if(choice === 'bestie') reply = "Lucu juga ya, entah bakal jadi partner in crime macam apa kitaa";
         await poetChat(reply, 60); await new Promise(r=>setTimeout(r, 2000));
         const finalDiv = document.createElement('div'); finalDiv.style.cssText = "text-align:center; margin-top:50px; font-family:Cinzel; font-size:1.2rem; color:#fff; text-shadow:0 0 15px gold; opacity:0; transition:opacity 2.5s; line-height:1.6;";
-        finalDiv.innerText = "Apapun itu gw janji bakal sayangin u, bahkan kalo dikehidupan selanjutnya mungkin u jadi cacing";
+        finalDiv.innerText = "Apapun itu gw janji bakal sayangin u, bahkan kalo itu dikehidupan selanjutnya";
         UI.chat.appendChild(finalDiv); scrollDown(); setTimeout(() => finalDiv.style.opacity = '1', 100);
         await new Promise(r=>setTimeout(r, 6000)); finalTransition();
     }
@@ -1015,6 +1037,16 @@
     function finalTransition() {
         document.getElementById('mobile-frame').style.opacity = 0; 
         AudioSys.play('firework'); AudioSys.play('confetti'); startConfetti();
+        
+        // CHECK IF MAGICAL PERFECT (10 + Gold + White)
+        // Score Logic: Total is collected hearts. Check logic.
+        // Intro(1) + Uke(1) + YungKai(3) + Practice(3) + Ex(1) + Final(1) = 10.
+        // If Magical: state.hearts = 10, state.gold = true, state.white = true.
+        
+        if (state.hearts >= 10 && state.gold && state.white) {
+            magicalSunset();
+        }
+
         // FORCE DISPLAY RESULT
         UI.result.style.display = 'flex';
         void UI.result.offsetWidth; // Force Reflow
@@ -1022,14 +1054,33 @@
         setTimeout(animateResult, 1500);
     }
 
+    // --- MAGICAL ENDING LOGIC ---
+    function magicalSunset() {
+        document.body.classList.add('magical-mode'); // Trigger BG Change
+        isSnowing = false; // Stop Snow
+        initLanterns(); // Start Lanterns
+        isLanterns = true;
+    }
+
     function animateResult() {
-        let redScore = state.hearts; let displayRed = redScore - (state.white?1:0) - (state.gold?1:0); let totalScore = redScore;
+        let totalScore = state.hearts;
+        // Display Red = Total - Specials (Logic: Total 10, White 1, Gold 1 => Red 8)
+        let displayRed = totalScore - (state.white?1:0) - (state.gold?1:0); 
+        
         setTimeout(() => { document.getElementById('row-red').classList.add('anim-reveal'); countUp(UI.rRed, displayRed); }, 500);
         setTimeout(() => { document.getElementById('row-white').classList.add('anim-reveal'); if(state.white) { document.getElementById('val-white').innerHTML = "<span style='color:white; text-shadow:0 0 10px white'>FOUND (+1)</span>"; AudioSys.play('levelup'); } else { document.getElementById('val-white').innerHTML = "<span style='color:#555'>MISSING</span>"; AudioSys.play('error'); } }, 1500);
         setTimeout(() => { document.getElementById('row-gold').classList.add('anim-reveal'); if(state.gold) { document.getElementById('val-gold').innerHTML = "<span style='color:gold; text-shadow:0 0 10px gold'>FOUND (+1)</span>"; AudioSys.play('heaven'); } else { document.getElementById('val-gold').innerHTML = "<span style='color:#555'>MISSING</span>"; AudioSys.play('error'); } }, 2500);
+        
         setTimeout(() => {
             document.getElementById('row-total').classList.add('anim-reveal'); document.getElementById('val-total').innerText = totalScore + " / 10"; AudioSys.play('intro_click');
-            let msg = ""; if (totalScore < 4) msg="Apaanjir segitu doang kocak."; else if (totalScore < 8) msg="Ya lumayan lah, tetep aja kocak cuman dapet segitu."; else if (totalScore >= 8 && !state.gold) msg="Wih dapet banyak, emang BEST!"; else if (state.gold && totalScore >= 9) msg="KEREEEEEEN BISA DAPETIN SEMUA, emang BEST sangat kakak kesayangan gw."; else msg = "Wih dapet Golden Heart! Hampir sempurna.";
+            
+            let msg = ""; 
+            if (totalScore < 5) msg="APAAN SEGINI DOANG, GA ABIS PIKIR GW 🗿. Ulangi lagi gih!"; 
+            else if (totalScore < 8) msg="Not bad lah. Tapi tetep aja kocak dapet segitu doang! 🤨"; 
+            else if (totalScore < 10) msg="Wihh keren! Hampir sempurna, dikit lagi! ✨"; 
+            else if (totalScore === 10 && (!state.gold || !state.white)) msg="PERFECT SCORE! 10/10 🏆 Bener-bener Tuan Putri terbaik. Gw bangga banget punya kakak kaya u! ❤️"; 
+            else if (totalScore >= 10 && state.gold && state.white) msg="U emang BEST!! 🤯. Cieee mainnya pake hati, tapi u sekeren itu loh dapet semua, bangga banget sama u, Sayang...";
+            
             document.getElementById('result-msg').innerText = msg;
         }, 3500);
     }
@@ -1080,7 +1131,59 @@
         } loop();
     }
 
-    // 3. FIREWORKS (BIGGER & ROUNDER)
+    // 2.5 LANTERNS (MAGICAL ENDING)
+    function initLanterns() {
+        const ctx = setupCanvas(UI.lanternCanvas);
+        UI.lanternCanvas.style.opacity = 1;
+        const lanterns = Array(40).fill().map(() => ({ 
+            x: Math.random()*window.innerWidth, 
+            y: window.innerHeight + Math.random()*500, 
+            w: Math.random()*15 + 10,
+            h: Math.random()*20 + 15,
+            v: Math.random()*0.8 + 0.2, 
+            sway: Math.random()*0.5,
+            offset: Math.random()*100
+        }));
+        
+        function loop() {
+            ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+            if(isLanterns) {
+                lanterns.forEach(l => {
+                    ctx.save();
+                    ctx.translate(l.x + Math.sin((l.y+l.offset)/50)*20, l.y);
+                    
+                    // Glow
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = "rgba(255, 165, 0, 0.5)";
+                    
+                    // Lantern Body
+                    const grad = ctx.createLinearGradient(0,0,0,l.h);
+                    grad.addColorStop(0, "rgba(255, 200, 0, 0.8)");
+                    grad.addColorStop(1, "rgba(255, 140, 0, 0.4)");
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(-l.w/2, -l.h/2, l.w, l.h);
+                    
+                    // Light Center
+                    ctx.fillStyle = "#fff";
+                    ctx.beginPath(); ctx.arc(0, 0, l.w/4, 0, Math.PI*2); ctx.fill();
+                    
+                    ctx.restore();
+                    
+                    l.y -= l.v;
+                    if(l.y < -50) { l.y = window.innerHeight + 50; l.x = Math.random()*window.innerWidth; }
+                });
+                
+                // Gold Dust
+                ctx.fillStyle = "rgba(255, 215, 0, 0.6)";
+                for(let i=0; i<30; i++) {
+                    ctx.fillRect(Math.random()*window.innerWidth, Math.random()*window.innerHeight, 2, 2);
+                }
+            }
+            requestAnimationFrame(loop);
+        } loop();
+    }
+
+    // 3. FIREWORKS (ROUND PHYSICS)
     function initFireworks() {
         const ctx = setupCanvas(UI.fwCanvas); let particles = [];
         
@@ -1089,11 +1192,10 @@
 
         function createExplosion(x,y) { 
             const palette = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF', '#FF00FF', '#FFA500', '#FFFFFF'];
-            const particleCount = 100; // More particles
+            const particleCount = 100; // Optimized count
             for(let i=0; i<particleCount; i++) { 
-                // Distribute evenly in a circle
+                // Distribute evenly in a circle (Polar coordinates)
                 const angle = (Math.PI * 2 * i) / particleCount;
-                // INCREASED SPEED FOR BIGGER EXPLOSION (Was 5+2, now 8+5)
                 const speed = Math.random() * 8 + 5; 
                 
                 particles.push({
@@ -1111,6 +1213,7 @@
         function loop() {
             ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
 
+            // AUTO LOOPING (Silent)
             if(fireworkPhase === 'AMBIENCE') {
                 if(Math.random() < 0.04) { 
                     window.launchRandomFirework(false); 
@@ -1119,10 +1222,10 @@
 
             if(isFireworks || particles.length > 0) {
                 particles.forEach((p,i) => { 
-                    // High Friction, Low Gravity
-                    p.vx *= 0.92; 
-                    p.vy *= 0.92; 
-                    p.vy += 0.005; 
+                    // PHYSICS CHANGE: High Friction, Low Gravity
+                    p.vx *= 0.92; // Slows down horizontally
+                    p.vy *= 0.92; // Slows down vertically
+                    p.vy += 0.005; // Almost no gravity, prevents "sagging"
                     
                     p.x += p.vx; p.y += p.vy; p.alpha -= p.decay; 
                     
@@ -1132,6 +1235,7 @@
                     if(p.alpha <= 0) {
                         particles.splice(i,1);
                     } else {
+                        // Draw Trail
                         ctx.beginPath();
                         ctx.strokeStyle = p.color;
                         ctx.lineWidth = 2;
@@ -1141,6 +1245,7 @@
                             for(let t of p.trail) ctx.lineTo(t.x, t.y);
                             ctx.stroke();
                         }
+                        // Draw Head
                         ctx.globalAlpha = p.alpha;
                         ctx.fillStyle = "white";
                         ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
@@ -1154,7 +1259,7 @@
     function initFireflies() { const ctx = setupCanvas(UI.ffCanvas); const flies = Array(30).fill().map(() => ({ x: Math.random()*window.innerWidth, y: Math.random()*window.innerHeight, s: Math.random()*3, a: Math.random(), da: 0.02 })); function loop() { ctx.clearRect(0,0,window.innerWidth,window.innerHeight); if(isFireflies) { flies.forEach(f => { ctx.beginPath(); ctx.arc(f.x, f.y, f.s, 0, Math.PI*2); ctx.fillStyle = `rgba(255, 215, 0, ${f.a})`; ctx.fill(); f.a += f.da; if(f.a<=0 || f.a>=1) f.da *= -1; f.x += (Math.random()-0.5); f.y += (Math.random()-0.5); }); } requestAnimationFrame(loop); } loop(); }
     function startConfetti() { const ctx = setupCanvas(document.getElementById('confetti-canvas')); const confs = Array(120).fill().map(()=>({x:window.innerWidth/2, y:window.innerHeight/2, vx:(Math.random()-0.5)*15, vy:(Math.random()-0.5)*15-5, c:`hsl(${Math.random()*360},100%,50%)`})); function loop() { ctx.clearRect(0,0,window.innerWidth,window.innerHeight); confs.forEach(p=>{ ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,6,6); p.x+=p.vx; p.y+=p.vy; p.vy+=0.3; }); requestAnimationFrame(loop); } loop(); }
 
-    window.addEventListener('resize', () => { UI.bgCanvas.width = window.innerWidth; UI.bgCanvas.height = window.innerHeight; UI.fwCanvas.width = window.innerWidth; UI.fwCanvas.height = window.innerHeight; UI.ffCanvas.width = window.innerWidth; UI.ffCanvas.height = window.innerHeight; UI.snowCanvas.width = window.innerWidth; UI.snowCanvas.height = window.innerHeight; });
+    window.addEventListener('resize', () => { UI.bgCanvas.width = window.innerWidth; UI.bgCanvas.height = window.innerHeight; UI.fwCanvas.width = window.innerWidth; UI.fwCanvas.height = window.innerHeight; UI.ffCanvas.width = window.innerWidth; UI.ffCanvas.height = window.innerHeight; UI.snowCanvas.width = window.innerWidth; UI.snowCanvas.height = window.innerHeight; UI.lanternCanvas.width = window.innerWidth; UI.lanternCanvas.height = window.innerHeight; });
     initFireworks(); initFireflies();
 </script>
 </body>
