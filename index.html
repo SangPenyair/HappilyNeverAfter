@@ -448,8 +448,8 @@
 </head>
 <body onclick="createClickRipple(event)">
 
-    <audio id="uke-song" src="lagu.mp3" preload="auto"></audio>
-    <audio id="bgm-song" src="lagu2.mp3" preload="auto" loop></audio>
+   <audio id="uke-song" src="lagu.mp3" preload="auto" playsinline></audio>
+    <audio id="bgm-song" src="lagu2.mp3" preload="auto" loop playsinline></audio>
 
     <div class="noise-overlay"></div>
     <div class="vignette-overlay"></div>
@@ -650,9 +650,46 @@
     // --- UTILS ---
     function scrollDown() { setTimeout(() => { UI.chat.scrollTo({ top: UI.chat.scrollHeight, behavior: 'smooth' }); }, 100); }
 
-    function startSequence() {
+   function startSequence() {
+        // 1. Inisialisasi Audio Context
         AudioSys.init(); 
+
+        // 2. Ambil elemen audio
+        const s1 = document.getElementById('uke-song');
+        const s2 = document.getElementById('bgm-song');
+
+        // --- FUNGSI PENYELAMAT: SILENT UNLOCK ---
+        // Ini mengakali Chrome & Safari agar menganggap lagu sudah diputar oleh user
+        function unlockAudio(el) {
+            if(!el) return;
+            // Simpan volume asli
+            const volAsli = el.volume; 
+            // Matikan suara agar user tidak kaget
+            el.volume = 0; 
+            
+            // Paksa Play lalu Pause seketika (Tanpa await animasi!)
+            el.play().then(() => {
+                el.pause();
+                el.currentTime = 0;
+                el.volume = volAsli; // Kembalikan volume
+            }).catch((e) => {
+                console.log("Audio unlock failed:", e);
+            });
+        }
+
+        // Jalankan pancingan untuk KEDUA lagu SEKARANG JUGA
+        unlockAudio(s1);
+        unlockAudio(s2);
+
+        // Resume AudioContext untuk Chrome agar SFX (efek suara) jalan
+        if (AudioSys.ctx && AudioSys.ctx.state === 'suspended') {
+            AudioSys.ctx.resume();
+        }
+
+        // 3. Mainkan SFX Klik (Tanda mulai)
         AudioSys.play('intro_click');
+        
+        // 4. Animasi Visual (Sisa kode lama)
         document.getElementById('click-catcher').style.opacity = 0;
         setTimeout(() => {
             document.getElementById('click-catcher').style.display = 'none';
