@@ -13,19 +13,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Urbanist:wght@300;400;600;700;800&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- HIGH END VARIABLES --- */
+        /* --- LUXURY VARIABLES --- */
         :root {
             --primary-gold: #FFD700;
             --soft-gold: #FFE5B4;
             --deep-space: #051024;
-            /* Premium Glass Effect */
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
-            --glass-highlight: rgba(255, 255, 255, 0.15);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             
-            --poet-bubble: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
-            --princess-bubble: linear-gradient(135deg, rgba(20, 184, 166, 0.4), rgba(13, 148, 136, 0.6));
+            /* Chat Bubbles */
+            --poet-bubble: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.9));
+            
+            /* Princess Bubble - MIDNIGHT WINTER BLUE */
+            --princess-bubble: linear-gradient(135deg, rgba(23, 37, 84, 0.9), rgba(30, 58, 138, 0.85));
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -33,26 +31,24 @@
         html, body {
             height: 100%; height: 100dvh; width: 100%;
             overflow: hidden; font-family: 'Urbanist', sans-serif; color: white;
-            background: #020617; /* Darker base */
+            background: #020617; /* Base Black */
             transition: background-color 3s ease;
         }
 
-        /* --- CINEMATIC TEXTURES --- */
-        /* Noise Overlay for Film Look */
+        /* --- TEXTURES --- */
         .noise-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
             pointer-events: none; z-index: 900; opacity: 0.4; mix-blend-mode: overlay;
         }
         
-        /* Vignette for Focus */
         .vignette-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
             pointer-events: none; z-index: 899;
         }
 
-        /* Ambient Light Orbs (Moving Background) */
+        /* Ambient Orbs */
         .ambient-orb {
             position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.4;
             animation: orbFloat 20s infinite alternate ease-in-out;
@@ -60,42 +56,73 @@
         .orb-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #1e3a8a; animation-delay: 0s; }
         .orb-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #581c87; animation-delay: -5s; }
         .orb-3 { top: 40%; left: 40%; width: 40vw; height: 40vw; background: #0f766e; animation-delay: -10s; opacity: 0.2; }
-
         @keyframes orbFloat { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 50px) scale(1.1); } }
 
-        /* --- BACKGROUND SYSTEM --- */
+        /* --- BACKGROUND LAYERS --- */
         .bg-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-size: 200% 200%; pointer-events: none;
+            pointer-events: none;
         }
         
-        /* Layer 1: Winter Dark Blue (Base) */
-        #bg-blue {
-            z-index: -2;
-            background: linear-gradient(180deg, rgba(5,16,36,0) 0%, rgba(5,16,36,0.8) 100%);
+        #bg-blue { 
+            z-index: -2; 
+            background: linear-gradient(180deg, rgba(5,16,36,1) 0%, rgba(2,6,23,1) 100%);
         }
         
-        /* Layer 2: Royal Aurora Purple */
         #bg-purple {
             z-index: -1;
-            background: radial-gradient(circle at center, rgba(88, 28, 135, 0.4) 0%, transparent 70%);
-            opacity: 0; transition: opacity 4s ease-in-out;
-            mix-blend-mode: screen;
+            /* Gradient Galaxy Purple untuk Tahun Baru */
+            background: radial-gradient(circle at center, #4c1d95 0%, #2e1065 40%, #020617 90%);
+            opacity: 0; 
+            transition: opacity 3s ease-in-out;
         }
-        body.royal-mode #bg-purple { opacity: 1 !important; }
+        
+        body.royal-mode #bg-purple { 
+            opacity: 1 !important; 
+            animation: galaxyPulse 8s infinite alternate ease-in-out;
+        }
+        
+        @keyframes galaxyPulse {
+            0% { filter: brightness(1) hue-rotate(0deg); transform: scale(1); }
+            100% { filter: brightness(1.2) hue-rotate(10deg); transform: scale(1.02); }
+        }
 
         /* CANVAS LAYERS */
         canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
         #global-canvas { z-index: 1; opacity: 1; }
-        #firework-canvas { z-index: 2; opacity: 0; transition: opacity 1s; filter: blur(4px) contrast(1.5) brightness(1.2); }
-        #firefly-canvas { z-index: 3; opacity: 0; transition: opacity 1s; }
+        #snow-canvas { z-index: 5; opacity: 1; pointer-events: none; }
+        
+        #firework-canvas { 
+            z-index: 10; 
+            opacity: 0; 
+            transition: opacity 1s; 
+            filter: brightness(1.2) contrast(1.2);
+        }
+
+        #frosted-glass-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 15; 
+            backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+            background: rgba(255, 255, 255, 0.0);
+            pointer-events: none;
+            transition: all 3s ease;
+        }
+        body.royal-mode #frosted-glass-layer {
+            backdrop-filter: blur(6px); 
+            -webkit-backdrop-filter: blur(6px);
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        #firefly-canvas { z-index: 16; opacity: 0; transition: opacity 1s; }
         #confetti-canvas { z-index: 9999; }
         
-        /* FRAME UTAMA */
+        /* UI FRAME */
         #mobile-frame {
             position: relative; width: 100%; height: 100%; max-width: 480px; margin: 0 auto;
             display: flex; flex-direction: column; z-index: 50;
             transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(0,0,0,0.2);
         }
 
         /* HEADER */
@@ -129,7 +156,7 @@
         }
         .heart-counter.reveal { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 
-        /* CHAT AREA */
+        /* CHAT */
         #chat-content {
             flex: 1; overflow-y: auto; padding: 20px 16px; padding-bottom: 40px;
             display: flex; flex-direction: column; gap: 24px;
@@ -139,7 +166,6 @@
         }
         #chat-content::-webkit-scrollbar { display: none; }
 
-        /* CINEMATIC DIALOG ANIMATION */
         .dialog-container {
             display: flex; flex-direction: column; max-width: 88%;
             opacity: 0; 
@@ -157,28 +183,30 @@
             font-weight: 600; opacity: 0.7; letter-spacing: 1px; margin-left: 12px; text-transform: uppercase;
             color: var(--soft-gold);
         }
-        .princess-container .dialog-label { margin-right: 12px; margin-left: 0; color: #64ffda; }
+        
+        .princess-container .dialog-label { margin-right: 12px; margin-left: 0; color: #bae6fd; text-shadow: 0 0 8px rgba(56, 189, 248, 0.6); }
 
         .dialog-box {
             padding: 16px 20px; border-radius: 24px; font-size: 1.05rem; line-height: 1.6;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
             position: relative; overflow: hidden;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: transform 0.3s ease;
         }
-        
         .poet-container .dialog-box { 
             background: var(--poet-bubble); color: #e2e8f0; border-bottom-left-radius: 4px; 
             box-shadow: 5px 5px 20px rgba(0,0,0,0.2);
         }
+        
         .princess-container .dialog-box { 
-            background: var(--princess-bubble); color: #fff; border-bottom-right-radius: 4px; 
-            box-shadow: -5px 5px 20px rgba(0,0,0,0.2); border: 1px solid rgba(100,255,218,0.2);
+            background: var(--princess-bubble); 
+            color: #fff; border-bottom-right-radius: 4px; 
+            box-shadow: -5px 5px 25px rgba(59, 130, 246, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* Narrative with Cinematic Blur */
         .narrative {
             align-self: center; text-align: center;
             font-family: 'Urbanist', sans-serif; font-weight: 300; font-size: 0.9rem; letter-spacing: 1px;
@@ -194,7 +222,7 @@
         /* INPUT AREA */
         #input-area {
             flex: 0 0 auto; padding: 25px;
-            background: rgba(0,0,0,0.4); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px);
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px);
             border-top: 1px solid rgba(255,255,255,0.08);
             padding-bottom: max(25px, env(safe-area-inset-bottom));
             display: flex; flex-direction: column; gap: 15px;
@@ -202,34 +230,32 @@
             box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
         }
 
-        /* TOMBOL "HIGH END" */
+        /* --- PILIHAN: SAPPHIRE ICE GLASS (Senada dengan Winter) --- */
         .choice-btn {
-            background: rgba(255,255,255,0.03); 
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 18px; border-radius: 20px; color: white;
+            /* Transparan Biru Royal (Sapphire) */
+            background: rgba(30, 58, 138, 0.35); 
+            /* Frosted Glass Tebal */
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            /* Border Bersinar Cyan/Biru */
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            
+            padding: 18px; border-radius: 20px; color: #e0f2fe; /* Ice White Text */
             font-family: 'Urbanist'; font-weight: 600; text-align: center; letter-spacing: 0.5px;
             cursor: pointer; position: relative; overflow: hidden;
             opacity: 0; animation: slideUpBlur 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            
+            /* Pendaran Biru Halus */
+            box-shadow: 0 4px 20px rgba(23, 37, 84, 0.4);
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
         }
-        
-        .choice-btn::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, rgba(255,215,0,0.1) 0%, transparent 70%);
-            opacity: 0; transition: 0.4s;
-        }
-
         .choice-btn:hover {
             transform: translateY(-3px) scale(1.02);
-            border-color: rgba(255, 215, 0, 0.5);
-            background: rgba(255,255,255,0.08);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(255, 215, 0, 0.1);
-            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            border-color: rgba(125, 211, 252, 0.6);
+            background: rgba(30, 64, 175, 0.5);
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.5), 0 0 20px rgba(56, 189, 248, 0.2);
+            color: #fff;
         }
-        .choice-btn:active { transform: scale(0.98); background: rgba(255,215,0,0.05); }
-        
         @keyframes slideUpBlur { 
             0% { opacity: 0; transform: translateY(30px); filter: blur(10px); }
             100% { opacity: 1; transform: translateY(0); filter: blur(0); } 
@@ -270,7 +296,7 @@
         .show-notif { transform: translate(-50%, 0) !important; filter: blur(0) !important; opacity: 1 !important; }
         .notif-icon { font-size: 1.4rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
 
-        /* IDENTITY OVERLAY */
+        /* IDENTITY */
         #identity-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(2, 6, 23, 0.6); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
@@ -293,7 +319,6 @@
             transition: 0.4s;
         }
         .id-input:focus { border-color: var(--primary-gold); background: rgba(0,0,0,0.5); box-shadow: 0 0 30px rgba(255,215,0,0.1); }
-        
         .shake-hard { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
 
@@ -366,7 +391,7 @@
         }
         .cinematic-msg { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #fff; text-align: center; text-shadow: 0 0 30px rgba(255,215,0,0.6); line-height: 1.5; transform: scale(1.1); transition: transform 4s; }
 
-        /* RESULT (FIXED Z-INDEX) */
+        /* RESULT SCREEN */
         #result-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #020617, #0f172a); z-index: 10000; display: none; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: opacity 2s ease; text-align: center; padding: 30px; }
         .score-box { width: 100%; max-width: 400px; margin: 40px 0; background: rgba(255,255,255,0.03); border-radius: 30px; padding: 35px; border: 1px solid rgba(255,215,0,0.2); box-shadow: 0 0 50px rgba(0,0,0,0.5); backdrop-filter: blur(20px); }
         .score-row { display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'Urbanist'; opacity: 0; transform: translateY(20px); filter: blur(5px); font-size: 1.15rem; }
@@ -376,7 +401,8 @@
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); 
             font-family: 'Cinzel', serif; font-size: 5rem; color: var(--primary-gold); 
             text-shadow: 0 0 60px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255,215,0,0.8); 
-            z-index: 50; opacity: 0; pointer-events: none; letter-spacing: 10px; 
+            z-index: 60; 
+            opacity: 0; pointer-events: none; letter-spacing: 10px; 
             text-align: center; width: 100%; font-weight: 800; filter: blur(30px); 
             transition: all 2.5s cubic-bezier(0.22, 1, 0.36, 1); 
             mix-blend-mode: screen;
@@ -425,7 +451,15 @@
     <div id="bg-blue" class="bg-layer"></div>
     <div id="bg-purple" class="bg-layer"></div>
 
-    <canvas id="global-canvas"></canvas> <canvas id="firework-canvas"></canvas> <canvas id="firefly-canvas"></canvas> <canvas id="confetti-canvas"></canvas>
+    <canvas id="global-canvas"></canvas> 
+    <canvas id="snow-canvas"></canvas>
+    
+    <canvas id="firework-canvas"></canvas> 
+    
+    <div id="frosted-glass-layer"></div>
+
+    <canvas id="firefly-canvas"></canvas> 
+    <canvas id="confetti-canvas"></canvas>
     
     <div id="red-screen"></div>
     <div id="notification">
@@ -582,6 +616,7 @@
         redScreen: document.getElementById('red-screen'),
         yearText: document.getElementById('year-text'),
         bgCanvas: document.getElementById('global-canvas'),
+        snowCanvas: document.getElementById('snow-canvas'),
         fwCanvas: document.getElementById('firework-canvas'),
         ffCanvas: document.getElementById('firefly-canvas'),
         result: document.getElementById('result-screen'),
@@ -598,7 +633,7 @@
     
     let state = { hearts: 0, gold: false, white: false };
     let isSnowing = false, isFireworks = false, isFireflies = false;
-    let fireworkPhase = 'NONE'; // 'NONE', 'SCRIPTED', 'AMBIENCE'
+    let fireworkPhase = 'NONE'; 
 
     // --- UTILS ---
     function scrollDown() { setTimeout(() => { UI.chat.scrollTo({ top: UI.chat.scrollHeight, behavior: 'smooth' }); }, 100); }
@@ -623,7 +658,8 @@
             document.getElementById('start-overlay').style.opacity = 0;
             setTimeout(() => { document.getElementById('start-overlay').style.display = 'none'; runScript(); }, 2000);
         }, 1000);
-        initAmbientDust(); 
+        initStarField(); 
+        initSnow(); 
     }
 
     function poetChat(text, speed = 40) {
@@ -860,7 +896,7 @@
         triggerNewYearScene();
     }
 
-    // --- PHASE: NEW YEAR (STRICT TIMING & SEQUENCING V2) ---
+    // --- PHASE: NEW YEAR ---
     async function triggerNewYearScene() {
         // Step 0: Fade Out Chat
         await new Promise(r=>setTimeout(r, 2000));
@@ -870,23 +906,21 @@
 
         await new Promise(r=>setTimeout(r, 1500));
         
-        // Step 1: 2026 Appears
+        // Step 1: 2026 Appears & Royal Mode
         const yTxt = UI.yearText;
         yTxt.classList.add('show'); 
         
-        document.body.classList.add('royal-mode'); // BG Change
+        document.body.classList.add('royal-mode'); // BG Change (Force Purple)
         isFireworks = true;
-        fireworkPhase = 'SCRIPTED'; // Scripted mode prevents random sound
+        fireworkPhase = 'SCRIPTED'; 
         UI.fwCanvas.style.opacity = 1;
 
-        // Step 2: Trail Lurus ke Tengah (Sound + Visual)
-        // Delay 1s after text appears
+        // Step 2: Trail Lurus ke Tengah
         setTimeout(() => { 
             window.launchCenterFirework(); 
         }, 1000);
 
         // Step 3: Text Change to "Selamat Tahun Baru"
-        // Happened around 2.5s (after center explosion)
         setTimeout(() => {
             yTxt.classList.remove('show');
             yTxt.classList.add('dissolve'); 
@@ -894,30 +928,24 @@
                 yTxt.innerText = "Selamat Tahun Baru!";
                 yTxt.classList.remove('dissolve');
                 yTxt.classList.add('show'); 
-            }, 2000); // Fading time
+            }, 2000); 
         }, 3000);
 
-        // Step 4: Follow up explosions (Strict 1s Interval)
-        // Note: launchRandomFirework(true) forces sound to play
-        
-        // Explosion #2 (4s)
+        // Step 4: Explosions (WITH SOUND)
         setTimeout(() => { window.launchRandomFirework(true); }, 4000);
-
-        // Explosion #3 (5s)
         setTimeout(() => { window.launchRandomFirework(true); }, 5000);
-
-        // Explosion #4 (6s)
         setTimeout(() => { window.launchRandomFirework(true); }, 6000);
+        setTimeout(() => { window.launchRandomFirework(true); }, 7000);
 
-        // Step 5: Switch to Ambience (No Sound)
-        setTimeout(() => { fireworkPhase = 'AMBIENCE'; }, 7000);
+        // Step 5: Ambience (SILENT LOOP)
+        setTimeout(() => { fireworkPhase = 'AMBIENCE'; }, 8000);
 
         // End Phase
-        await new Promise(r=>setTimeout(r, 11000)); 
+        await new Promise(r=>setTimeout(r, 12000)); 
         
         yTxt.classList.remove('show'); 
         yTxt.style.display = 'none';
-
+        
         UI.chat.innerHTML = '';
         UI.chat.style.opacity = 1;
         
@@ -956,6 +984,7 @@
         setTimeout(() => {
             isFireworks = false; UI.fwCanvas.style.opacity = 0; UI.chat.innerHTML = ""; 
             isFireflies = true; UI.ffCanvas.style.opacity = 1;
+            document.body.classList.remove('royal-mode'); 
             notifMsg("✨", "Achievement Unlocked: Golden Promise", "gold");
             const title = document.createElement('div'); title.innerHTML = "<h2 style='font-family:Cinzel; color:#FFD700; text-align:center; text-shadow:0 0 30px #FFD700; opacity:0; animation:cinematicReveal 1.5s forwards'>Chapter : The Golden Promise</h2>"; UI.chat.appendChild(title);
             const sub = document.createElement('div'); sub.innerHTML = "<p style='text-align:center; color:#ddd; font-size:0.95rem; margin:20px; line-height:1.6; opacity:0; animation:cinematicReveal 1.5s 0.5s forwards'>Karena telah mendapatkan Golden Heart, u bisa memilih di kehidupan selanjutnya, ingin reinkarnasi jadi apa?</p>"; UI.chat.appendChild(sub);
@@ -1006,107 +1035,118 @@
     }
     function countUp(el, max) { let curr = 0; if(max <= 0) { el.innerText = 0; return; } let int = setInterval(() => { curr++; el.innerText = curr; if(curr >= max) clearInterval(int); }, 80); }
 
-    // --- VISUAL ENGINE (UPDATED V2) ---
+    // --- VISUAL ENGINE (FINAL PERFECTED) ---
     function setupCanvas(c) { c.width = window.innerWidth; c.height = window.innerHeight; return c.getContext('2d'); }
     
-    // SNOW SYSTEM: REAL SNOWFLAKES + DEPTH OF FIELD
-    function initAmbientDust() {
+    // 1. STAR FIELD (BACKGROUND) - Always visible
+    function initStarField() {
         const ctx = setupCanvas(UI.bgCanvas);
-        // Back Layer: Small circles, blurred (Bokeh effect)
-        const snowBack = Array(50).fill().map(() => ({ 
+        const stars = Array(150).fill().map(() => ({ 
             x: Math.random()*window.innerWidth, 
-            y: Math.random()*-window.innerHeight, 
-            r: Math.random()*1.5+0.5, 
-            v: Math.random()*0.5+0.5,
-            opacity: Math.random()*0.3 + 0.1
+            y: Math.random()*window.innerHeight, 
+            r: Math.random()*1.8, 
+            v: Math.random()*0.3 + 0.1, 
+            opacity: Math.random()*0.7 + 0.3 
         })); 
-        
-        // Front Layer: Real Snowflakes (❄), larger, faster, glowing
-        const snowFront = Array(15).fill().map(() => ({ 
-            x: Math.random()*window.innerWidth, 
-            y: Math.random()*-window.innerHeight, 
-            size: Math.random()*15 + 10, // Size in px
-            v: Math.random()*1.5+1,
-            spin: Math.random() * 360,
-            spinSpeed: (Math.random()-0.5) * 2
-        })); 
-
         function loop() {
             ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-            
-            // Draw Gold Dust (Always Active)
-            // (Using simple rects/circles for dust is fine)
-            
-            if(isSnowing) {
-                // Draw Background Snow (Bokeh Circles)
-                ctx.fillStyle = "rgba(255,255,255,0.4)"; 
-                snowBack.forEach(f => { 
-                    ctx.beginPath(); ctx.globalAlpha = f.opacity;
-                    ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); ctx.fill(); 
-                    f.y += f.v; f.x += Math.sin(f.y/50)*0.3; 
-                    if(f.y > window.innerHeight) { f.y = -10; f.x = Math.random()*window.innerWidth; } 
-                });
+            stars.forEach(s => { 
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); 
+                let alpha = s.opacity + (Math.sin(Date.now() * 0.003 * s.v) * 0.2); if(alpha<0) alpha=0;
+                ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`; 
+                if(s.r > 1.2) { ctx.shadowBlur = 8; ctx.shadowColor = "rgba(255, 215, 0, 0.5)"; } else { ctx.shadowBlur = 0; }
+                ctx.fill(); s.y -= s.v; if(s.y < 0) { s.y = window.innerHeight; s.x = Math.random()*window.innerWidth; } 
+            });
+            requestAnimationFrame(loop);
+        } loop();
+    }
 
-                // Draw Foreground Snow (Real Snowflakes ❄)
-                ctx.fillStyle = "white"; 
-                ctx.globalAlpha = 1;
-                ctx.shadowBlur = 10; ctx.shadowColor = "white"; // GLOW EFFECT
-                ctx.font = "20px sans-serif";
-                
-                snowFront.forEach(f => { 
-                    ctx.save();
-                    ctx.translate(f.x, f.y);
-                    ctx.rotate(f.spin * Math.PI/180);
-                    ctx.font = `${f.size}px sans-serif`;
-                    ctx.fillText("❄", 0, 0);
-                    ctx.restore();
-                    
-                    f.y += f.v; 
-                    f.x += Math.sin(f.y/30)*0.5; 
-                    f.spin += f.spinSpeed;
-                    
-                    if(f.y > window.innerHeight + 50) { f.y = -50; f.x = Math.random()*window.innerWidth; } 
-                });
-                ctx.shadowBlur = 0; // Reset
+    // 2. SNOW (Dedicated)
+    function initSnow() {
+        const ctx = setupCanvas(UI.snowCanvas);
+        const snowBack = Array(50).fill().map(() => ({ x: Math.random()*window.innerWidth, y: Math.random()*-window.innerHeight, r: Math.random()*1.5+0.5, v: Math.random()*0.5+0.5, opacity: Math.random()*0.3 + 0.1 })); 
+        const snowFront = Array(15).fill().map(() => ({ x: Math.random()*window.innerWidth, y: Math.random()*-window.innerHeight, size: Math.random()*15 + 10, v: Math.random()*1.5+1, spin: Math.random() * 360, spinSpeed: (Math.random()-0.5) * 2 })); 
+        
+        function loop() {
+            ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+            if(isSnowing) {
+                ctx.fillStyle = "rgba(255,255,255,0.4)"; 
+                snowBack.forEach(f => { ctx.beginPath(); ctx.globalAlpha = f.opacity; ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); ctx.fill(); f.y += f.v; f.x += Math.sin(f.y/50)*0.3; if(f.y > window.innerHeight) { f.y = -10; f.x = Math.random()*window.innerWidth; } });
+                ctx.fillStyle = "white"; ctx.globalAlpha = 1; ctx.shadowBlur = 10; ctx.shadowColor = "white"; ctx.font = "20px sans-serif";
+                snowFront.forEach(f => { ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.spin * Math.PI/180); ctx.font = `${f.size}px sans-serif`; ctx.fillText("❄", 0, 0); ctx.restore(); f.y += f.v; f.x += Math.sin(f.y/30)*0.5; f.spin += f.spinSpeed; if(f.y > window.innerHeight + 50) { f.y = -50; f.x = Math.random()*window.innerWidth; } });
+                ctx.shadowBlur = 0;
             }
             requestAnimationFrame(loop);
         } loop();
     }
 
+    // 3. FIREWORKS (BIGGER & ROUNDER)
     function initFireworks() {
         const ctx = setupCanvas(UI.fwCanvas); let particles = [];
         
-        window.launchCenterFirework = () => { 
-            // Sound Trail
-            AudioSys.play('trail');
-            // Visual Trail Logic (Simulated by delay)
-            setTimeout(() => { 
-                createExplosion(window.innerWidth/2, window.innerHeight/2); 
-                AudioSys.play('firework'); // Boom Sound
-            }, 1000); 
-        };
+        window.launchCenterFirework = () => { AudioSys.play('trail'); setTimeout(() => { createExplosion(window.innerWidth/2, window.innerHeight/2); AudioSys.play('firework'); }, 1000); };
+        window.launchRandomFirework = (forceSound = false) => { createExplosion(Math.random()*window.innerWidth, Math.random()*window.innerHeight*0.6); if(forceSound) { AudioSys.play('firework'); } };
 
-        window.launchRandomFirework = (forceSound = false) => { 
-            createExplosion(Math.random()*window.innerWidth, Math.random()*window.innerHeight*0.6); 
-            if(forceSound || fireworkPhase === 'SCRIPTED') {
-                 AudioSys.play('firework'); 
-            }
-        };
-
-        function createExplosion(x,y) { const colors = ['#ff0', '#0ff', '#f0f', '#fff', '#FFA500']; for(let i=0; i<80; i++) { const angle = Math.PI*2*i/80; const speed = Math.random()*6+3; particles.push({x, y, vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, color:colors[Math.floor(Math.random()*colors.length)], alpha:1}); } }
+        function createExplosion(x,y) { 
+            const palette = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF', '#FF00FF', '#FFA500', '#FFFFFF'];
+            const particleCount = 100; // More particles
+            for(let i=0; i<particleCount; i++) { 
+                // Distribute evenly in a circle
+                const angle = (Math.PI * 2 * i) / particleCount;
+                // INCREASED SPEED FOR BIGGER EXPLOSION (Was 5+2, now 8+5)
+                const speed = Math.random() * 8 + 5; 
+                
+                particles.push({
+                    x, y, 
+                    vx: Math.cos(angle) * speed, 
+                    vy: Math.sin(angle) * speed, 
+                    color: palette[Math.floor(Math.random()*palette.length)], 
+                    alpha: 1, 
+                    decay: Math.random() * 0.015 + 0.01,
+                    trail: [] 
+                }); 
+            } 
+        }
         
         function loop() {
-            if(isFireworks || particles.length > 0) {
-                ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,window.innerWidth,window.innerHeight); ctx.globalCompositeOperation = 'lighter';
-                
-                particles.forEach((p,i) => { ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill(); p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.alpha -= 0.02; if(p.alpha <= 0) particles.splice(i,1); });
-                
-                // Silent Ambience
-                if(fireworkPhase === 'AMBIENCE' && Math.random() < 0.03) { 
-                    createExplosion(Math.random()*window.innerWidth, Math.random()*window.innerHeight*0.6); 
-                    // No AudioSys.play call here
+            ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+
+            if(fireworkPhase === 'AMBIENCE') {
+                if(Math.random() < 0.04) { 
+                    window.launchRandomFirework(false); 
                 }
-            } else { ctx.clearRect(0,0,window.innerWidth,window.innerHeight); }
+            }
+
+            if(isFireworks || particles.length > 0) {
+                particles.forEach((p,i) => { 
+                    // High Friction, Low Gravity
+                    p.vx *= 0.92; 
+                    p.vy *= 0.92; 
+                    p.vy += 0.005; 
+                    
+                    p.x += p.vx; p.y += p.vy; p.alpha -= p.decay; 
+                    
+                    p.trail.push({x: p.x, y: p.y});
+                    if(p.trail.length > 5) p.trail.shift();
+
+                    if(p.alpha <= 0) {
+                        particles.splice(i,1);
+                    } else {
+                        ctx.beginPath();
+                        ctx.strokeStyle = p.color;
+                        ctx.lineWidth = 2;
+                        ctx.globalAlpha = p.alpha * 0.5;
+                        if(p.trail.length > 1) {
+                            ctx.moveTo(p.trail[0].x, p.trail[0].y);
+                            for(let t of p.trail) ctx.lineTo(t.x, t.y);
+                            ctx.stroke();
+                        }
+                        ctx.globalAlpha = p.alpha;
+                        ctx.fillStyle = "white";
+                        ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
+                    }
+                });
+            } 
             requestAnimationFrame(loop);
         } loop();
     }
@@ -1114,7 +1154,7 @@
     function initFireflies() { const ctx = setupCanvas(UI.ffCanvas); const flies = Array(30).fill().map(() => ({ x: Math.random()*window.innerWidth, y: Math.random()*window.innerHeight, s: Math.random()*3, a: Math.random(), da: 0.02 })); function loop() { ctx.clearRect(0,0,window.innerWidth,window.innerHeight); if(isFireflies) { flies.forEach(f => { ctx.beginPath(); ctx.arc(f.x, f.y, f.s, 0, Math.PI*2); ctx.fillStyle = `rgba(255, 215, 0, ${f.a})`; ctx.fill(); f.a += f.da; if(f.a<=0 || f.a>=1) f.da *= -1; f.x += (Math.random()-0.5); f.y += (Math.random()-0.5); }); } requestAnimationFrame(loop); } loop(); }
     function startConfetti() { const ctx = setupCanvas(document.getElementById('confetti-canvas')); const confs = Array(120).fill().map(()=>({x:window.innerWidth/2, y:window.innerHeight/2, vx:(Math.random()-0.5)*15, vy:(Math.random()-0.5)*15-5, c:`hsl(${Math.random()*360},100%,50%)`})); function loop() { ctx.clearRect(0,0,window.innerWidth,window.innerHeight); confs.forEach(p=>{ ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,6,6); p.x+=p.vx; p.y+=p.vy; p.vy+=0.3; }); requestAnimationFrame(loop); } loop(); }
 
-    window.addEventListener('resize', () => { UI.bgCanvas.width = window.innerWidth; UI.bgCanvas.height = window.innerHeight; UI.fwCanvas.width = window.innerWidth; UI.fwCanvas.height = window.innerHeight; UI.ffCanvas.width = window.innerWidth; UI.ffCanvas.height = window.innerHeight; });
+    window.addEventListener('resize', () => { UI.bgCanvas.width = window.innerWidth; UI.bgCanvas.height = window.innerHeight; UI.fwCanvas.width = window.innerWidth; UI.fwCanvas.height = window.innerHeight; UI.ffCanvas.width = window.innerWidth; UI.ffCanvas.height = window.innerHeight; UI.snowCanvas.width = window.innerWidth; UI.snowCanvas.height = window.innerHeight; });
     initFireworks(); initFireflies();
 </script>
 </body>
