@@ -858,7 +858,7 @@
         showOptions([{ text: "Wih sok banget, emang bisa? Wkwk coba deh 😏", action: ()=>q1('A') }, { text: "Gausah, nanti u malu maluin 🙄", action: ()=>q1('B') }]);
     }
 
- async function q1(c) {
+async function q1(c) {
         UI.input.innerHTML = '';
         const s1 = document.getElementById('uke-song'); 
         const s2 = document.getElementById('bgm-song');
@@ -867,13 +867,22 @@
             // --- PILIHAN A: NYANYI ---
             princessChat("Widih sok banget, emang bisa? Wkwk coba deh 😏"); 
             updateHearts(1); 
+            
+            // --- SAFETY FIX: Matikan Lagu 2 (BGM) ---
+            // Jaga-jaga kalau dia jalan diam-diam (ghost playing), kita matikan paksa.
+            if(s2) {
+                s2.pause(); 
+                s2.currentTime = 0; 
+            }
+            // ----------------------------------------
+
             await poetChat("Yee ngeremehin 😎"); 
             await poetChat("Ehem ehem... 🎤🎸"); 
             
             // Mainkan Ukulele
             if(s1) { 
-                s1.muted = false; 
-                s1.currentTime = 0; 
+                s1.muted = false;     
+                s1.currentTime = 0;   
                 s1.play().catch(e=>{}); 
             } 
             
@@ -881,16 +890,16 @@
             q2(); 
         } 
         else { 
-            // --- PILIHAN B: GAK NYANYI (Update Disini) ---
+            // --- PILIHAN B: GAK NYANYI ---
             princessChat("Gausah, nanti malu maluin 🙄"); 
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
             
-            // Langsung mainkan Lagu 2 (BGM) sekarang juga
+            // Langsung mainkan Lagu 2 (BGM)
             if(s2) {
-                s2.muted = false; // Unmute
-                s2.currentTime = 0; // Mulai dari awal
-                s2.play().catch(e=>{}); // Play loop
+                s2.muted = false;     
+                s2.currentTime = 0;   
+                s2.play().catch(e=>{}); 
             }
             
             q2(); 
@@ -956,10 +965,10 @@
         phaseChristmas();
     }
 
-       async function phaseChristmas() {
+      async function phaseChristmas() {
         await new Promise(r=>setTimeout(r, 1000));
         
-        // Matikan Lagu 1 (Ukulele) jika masih ada
+        // Matikan Lagu Ukulele
         const s1 = document.getElementById('uke-song');
         if(s1) { s1.pause(); s1.muted = true; } 
 
@@ -971,30 +980,32 @@
         
         await poetChat("Kayanya, salju mulai turun...");
         
-        // --- LOGIC BARU: CEK DULU ---
+        // --- LOGIC PLAY BGM ---
         const s2 = document.getElementById('bgm-song');
         if(s2) {
-            s2.muted = false; // Pastikan unmute
+            s2.muted = false; // Pastikan suara on
             
-            // Cek: Kalau dia PAUSED (mati), baru kita play.
-            // Kalau dia sudah main (dari q1 pilihan B), biarkan saja lanjut.
-            if(s2.paused) {
+            // Cek status
+            if(s2.paused || s2.ended) {
+                // FORCE RESET KE 0. 
+                // Ini mengatasi masalah lagu yang udah jalan diem-diem sampe akhir.
+                s2.currentTime = 0; 
                 s2.play().catch(e=>{});
             }
+            // Kalau s2.paused == false (artinya sedang main dari opsi B),
+            // dia bakal lanjut terus tanpa reset.
         }
         
         await new Promise(r=>setTimeout(r, 1000));
         isSnowing = true;
-        await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
         
-        // ... Lanjut ke kode looping pesan natal ...
-        // (Pastikan sisa kode di bawah ini tetap ada ya)
+        await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
         await new Promise(r=>setTimeout(r, 1000));
+        
         const m = ["Oh iyaa, Selamat Natal yaa..","Jujur, u berarti banget buat gw sebagai apapun","Bahkan sama u terakhir kali gw ngerasain punya kakak yang sesayang dan sepeduli itu sama gw...","Tahun baru nanti, dan tahun-tahun berikutnya..","Gw selalu doain yang terbaik buat u","Meskipun terlambat, Selamat Natal..."];
         for(let t of m) { await poetChat(t, 55); await new Promise(r=>setTimeout(r, 1500)); }
         triggerNewYearScene();
     }
-
     // --- PHASE: NEW YEAR ---
     async function triggerNewYearScene() {
         // Step 0: Fade Out Chat
