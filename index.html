@@ -858,19 +858,21 @@
         showOptions([{ text: "Wih sok banget, emang bisa? Wkwk coba deh 😏", action: ()=>q1('A') }, { text: "Gausah, nanti u malu maluin 🙄", action: ()=>q1('B') }]);
     }
 
-   async function q1(c) {
+ async function q1(c) {
         UI.input.innerHTML = '';
         const s1 = document.getElementById('uke-song'); 
         const s2 = document.getElementById('bgm-song');
         
         if(c=='A') { 
+            // --- PILIHAN A: NYANYI ---
             princessChat("Widih sok banget, emang bisa? Wkwk coba deh 😏"); 
             updateHearts(1); 
             await poetChat("Yee ngeremehin 😎"); 
             await poetChat("Ehem ehem... 🎤🎸"); 
             
+            // Mainkan Ukulele
             if(s1) { 
-                s1.muted = false; // <--- PENTING: Unmute dulu
+                s1.muted = false; 
                 s1.currentTime = 0; 
                 s1.play().catch(e=>{}); 
             } 
@@ -879,10 +881,18 @@
             q2(); 
         } 
         else { 
+            // --- PILIHAN B: GAK NYANYI (Update Disini) ---
             princessChat("Gausah, nanti malu maluin 🙄"); 
             updateHearts(-1); 
             await poetChat("Yaudaa yaudaaa engga gw mainin"); 
-            // Tidak perlu play s2 disini, biarkan hening atau play s2 logic lain
+            
+            // Langsung mainkan Lagu 2 (BGM) sekarang juga
+            if(s2) {
+                s2.muted = false; // Unmute
+                s2.currentTime = 0; // Mulai dari awal
+                s2.play().catch(e=>{}); // Play loop
+            }
+            
             q2(); 
         }
     }
@@ -946,12 +956,12 @@
         phaseChristmas();
     }
 
-        async function phaseChristmas() {
+       async function phaseChristmas() {
         await new Promise(r=>setTimeout(r, 1000));
-   
-        // Matikan Lagu 1 (Ukulele) jaga-jaga kalau masih nyala
+        
+        // Matikan Lagu 1 (Ukulele) jika masih ada
         const s1 = document.getElementById('uke-song');
-        if(s1) { s1.pause(); s1.muted = true; } // Mute balik biar aman
+        if(s1) { s1.pause(); s1.muted = true; } 
 
         UI.chat.style.transition = "opacity 1.5s";
         UI.chat.style.opacity = 0;
@@ -961,17 +971,24 @@
         
         await poetChat("Kayanya, salju mulai turun...");
         
+        // --- LOGIC BARU: CEK DULU ---
         const s2 = document.getElementById('bgm-song');
-        // Play Lagu 2
         if(s2) {
-            s2.muted = false; // <--- PENTING: Unmute dulu
-            if(s2.paused) s2.play().catch(e=>{});
+            s2.muted = false; // Pastikan unmute
+            
+            // Cek: Kalau dia PAUSED (mati), baru kita play.
+            // Kalau dia sudah main (dari q1 pilihan B), biarkan saja lanjut.
+            if(s2.paused) {
+                s2.play().catch(e=>{});
+            }
         }
         
         await new Promise(r=>setTimeout(r, 1000));
-        // ... sisa kode ...
         isSnowing = true;
         await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
+        
+        // ... Lanjut ke kode looping pesan natal ...
+        // (Pastikan sisa kode di bawah ini tetap ada ya)
         await new Promise(r=>setTimeout(r, 1000));
         const m = ["Oh iyaa, Selamat Natal yaa..","Jujur, u berarti banget buat gw sebagai apapun","Bahkan sama u terakhir kali gw ngerasain punya kakak yang sesayang dan sepeduli itu sama gw...","Tahun baru nanti, dan tahun-tahun berikutnya..","Gw selalu doain yang terbaik buat u","Meskipun terlambat, Selamat Natal..."];
         for(let t of m) { await poetChat(t, 55); await new Promise(r=>setTimeout(r, 1500)); }
