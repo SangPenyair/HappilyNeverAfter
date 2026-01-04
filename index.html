@@ -650,46 +650,34 @@
     // --- UTILS ---
     function scrollDown() { setTimeout(() => { UI.chat.scrollTo({ top: UI.chat.scrollHeight, behavior: 'smooth' }); }, 100); }
 
-   function startSequence() {
-        // 1. Inisialisasi Audio Context
+    function startSequence() {
         AudioSys.init(); 
 
-        // 2. Ambil elemen audio
         const s1 = document.getElementById('uke-song');
         const s2 = document.getElementById('bgm-song');
 
-        // --- FUNGSI PENYELAMAT: SILENT UNLOCK ---
-        // Ini mengakali Chrome & Safari agar menganggap lagu sudah diputar oleh user
-        function unlockAudio(el) {
+        // FUNGSI UNLOCK HENING (VERSI MUTED)
+        function silentUnlock(el) {
             if(!el) return;
-            // Simpan volume asli
-            const volAsli = el.volume; 
-            // Matikan suara agar user tidak kaget
-            el.volume = 0; 
-            
-            // Paksa Play lalu Pause seketika (Tanpa await animasi!)
+            el.muted = true; // Mute dulu biar gak bocor suaranya
             el.play().then(() => {
-                el.pause();
-                el.currentTime = 0;
-                el.volume = volAsli; // Kembalikan volume
+                el.pause();       // Langsung pause
+                el.currentTime = 0; // Reset ke detik 0
+                // JANGAN di-unmute disini, nanti bocor. Unmute pas mau dipake aja.
             }).catch((e) => {
-                console.log("Audio unlock failed:", e);
+                console.log("Unlock failed:", e);
             });
         }
 
-        // Jalankan pancingan untuk KEDUA lagu SEKARANG JUGA
-        unlockAudio(s1);
-        unlockAudio(s2);
+        silentUnlock(s1);
+        silentUnlock(s2);
 
-        // Resume AudioContext untuk Chrome agar SFX (efek suara) jalan
         if (AudioSys.ctx && AudioSys.ctx.state === 'suspended') {
             AudioSys.ctx.resume();
         }
 
-        // 3. Mainkan SFX Klik (Tanda mulai)
         AudioSys.play('intro_click');
         
-        // 4. Animasi Visual (Sisa kode lama)
         document.getElementById('click-catcher').style.opacity = 0;
         setTimeout(() => {
             document.getElementById('click-catcher').style.display = 'none';
@@ -870,11 +858,33 @@
         showOptions([{ text: "Wih sok banget, emang bisa? Wkwk coba deh 😏", action: ()=>q1('A') }, { text: "Gausah, nanti u malu maluin 🙄", action: ()=>q1('B') }]);
     }
 
-    async function q1(c) {
+   async function q1(c) {
         UI.input.innerHTML = '';
-        const s1 = document.getElementById('uke-song'); const s2 = document.getElementById('bgm-song');
-        if(c=='A') { princessChat("Widih sok banget, emang bisa? Wkwk coba deh 😏"); updateHearts(1); await poetChat("Yee ngeremehin 😎"); await poetChat("Ehem ehem... 🎤🎸"); if(s1) { s1.currentTime = 0; s1.play().catch(e=>{}); } await new Promise(r => setTimeout(r, 5000)); q2(); } 
-        else { princessChat("Gausah, nanti malu maluin 🙄"); updateHearts(-1); await poetChat("Yaudaa yaudaaa engga gw mainin"); if(s2) { s2.currentTime = 0; s2.play().catch(e=>{}); } q2(); }
+        const s1 = document.getElementById('uke-song'); 
+        const s2 = document.getElementById('bgm-song');
+        
+        if(c=='A') { 
+            princessChat("Widih sok banget, emang bisa? Wkwk coba deh 😏"); 
+            updateHearts(1); 
+            await poetChat("Yee ngeremehin 😎"); 
+            await poetChat("Ehem ehem... 🎤🎸"); 
+            
+            if(s1) { 
+                s1.muted = false; // <--- PENTING: Unmute dulu
+                s1.currentTime = 0; 
+                s1.play().catch(e=>{}); 
+            } 
+            
+            await new Promise(r => setTimeout(r, 5000)); 
+            q2(); 
+        } 
+        else { 
+            princessChat("Gausah, nanti malu maluin 🙄"); 
+            updateHearts(-1); 
+            await poetChat("Yaudaa yaudaaa engga gw mainin"); 
+            // Tidak perlu play s2 disini, biarkan hening atau play s2 logic lain
+            q2(); 
+        }
     }
 
     async function q2() {
@@ -938,18 +948,28 @@
 
     async function phaseChristmas() {
         await new Promise(r=>setTimeout(r, 1000));
+        
+        // Matikan Lagu 1 (Ukulele) jaga-jaga kalau masih nyala
+        const s1 = document.getElementById('uke-song');
+        if(s1) { s1.pause(); s1.muted = true; } // Mute balik biar aman
+
         UI.chat.style.transition = "opacity 1.5s";
         UI.chat.style.opacity = 0;
         await new Promise(r=>setTimeout(r, 1500));
         UI.chat.innerHTML = '';
         UI.chat.style.opacity = 1;
+        
         await poetChat("Kayanya, salju mulai turun...");
+        
         const s2 = document.getElementById('bgm-song');
-        if(s2 && s2.paused) s2.play().catch(e=>{});
+        // Play Lagu 2
+        if(s2) {
+            s2.muted = false; // <--- PENTING: Unmute dulu
+            if(s2.paused) s2.play().catch(e=>{});
+        }
+        
         await new Promise(r=>setTimeout(r, 1000));
-        isSnowing = true;
-        await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
-        await new Promise(r=>setTimeout(r, 1000));
+        // ... sisa kode ...
         const m = ["Oh iyaa, Selamat Natal yaa..","Jujur, u berarti banget buat gw sebagai apapun","Bahkan sama u terakhir kali gw ngerasain punya kakak yang sesayang dan sepeduli itu sama gw...","Tahun baru nanti, dan tahun-tahun berikutnya..","Gw selalu doain yang terbaik buat u","Meskipun terlambat, Selamat Natal..."];
         for(let t of m) { await poetChat(t, 55); await new Promise(r=>setTimeout(r, 1500)); }
         triggerNewYearScene();
