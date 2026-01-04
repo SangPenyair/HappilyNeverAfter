@@ -946,9 +946,9 @@
         phaseChristmas();
     }
 
-    async function phaseChristmas() {
+        async function phaseChristmas() {
         await new Promise(r=>setTimeout(r, 1000));
-        
+   
         // Matikan Lagu 1 (Ukulele) jaga-jaga kalau masih nyala
         const s1 = document.getElementById('uke-song');
         if(s1) { s1.pause(); s1.muted = true; } // Mute balik biar aman
@@ -970,6 +970,9 @@
         
         await new Promise(r=>setTimeout(r, 1000));
         // ... sisa kode ...
+        isSnowing = true;
+        await poetChat("Loh... bukannya kita ada di indonesia yak 🤨"); 
+        await new Promise(r=>setTimeout(r, 1000));
         const m = ["Oh iyaa, Selamat Natal yaa..","Jujur, u berarti banget buat gw sebagai apapun","Bahkan sama u terakhir kali gw ngerasain punya kakak yang sesayang dan sepeduli itu sama gw...","Tahun baru nanti, dan tahun-tahun berikutnya..","Gw selalu doain yang terbaik buat u","Meskipun terlambat, Selamat Natal..."];
         for(let t of m) { await poetChat(t, 55); await new Promise(r=>setTimeout(r, 1500)); }
         triggerNewYearScene();
