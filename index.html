@@ -1080,7 +1080,7 @@ async function q1(c) {
         await new Promise(r=>setTimeout(r, 1000));
         const letter = document.createElement('div');
         letter.className = 'letter-card';
-        letter.innerHTML = `<div style="border-bottom:1px solid rgba(0,0,0,0.1); margin-bottom:15px; padding-bottom:5px; font-size:1rem; opacity:0.6;">Dear God, Aku berharap... </div><div style="margin-bottom:20px; font-size:1.6rem; line-height:1.4;">"${wishText}"</div><div style="text-align:right; font-size:1rem; margin-top:10px;">Priscilla A.T.</div>`;
+        letter.innerHTML = `<div style="border-bottom:1px solid rgba(0,0,0,0.1); margin-bottom:15px; padding-bottom:5px; font-size:1rem; opacity:0.6;">Doa i untuk Tahun 2026 </div><div style="margin-bottom:20px; font-size:1.6rem; line-height:1.4;">"${wishText}"</div><div style="text-align:right; font-size:1rem; margin-top:10px;">Priscilla Annastasya Theophilia.</div>`;
         UI.chat.appendChild(letter); scrollDown(); AudioSys.play('heaven');
         await new Promise(r=>setTimeout(r, 3500));
         UI.cinematicMsg.innerText = "Semoga doa yang u harapkan tercapai, apapun itu";
@@ -1111,15 +1111,43 @@ async function q1(c) {
     }
 
     async function melancholy(choice) {
-        UI.chat.innerHTML = ''; let reply = "";
-        if(choice === 'pasangan') reply = "Semoga kita terikat di kehidupan selanjutnya sebagai pasangan paling hangat sedunia. Btw, bakal gimana \"Ketidaksengajaan\" yang pertemuin kita nanti ya...";
-        if(choice === 'kakak') reply = "Semoga yaa, tapi u jangan galak-galak sama adick u inii, nanti kita pasti jadi duo troublemaker wkwk";
-        if(choice === 'bestie') reply = "Lucu juga ya, entah bakal jadi partner in crime macam apa kitaa";
-        await poetChat(reply, 60); await new Promise(r=>setTimeout(r, 2000));
-        const finalDiv = document.createElement('div'); finalDiv.style.cssText = "text-align:center; margin-top:50px; font-family:Cinzel; font-size:1.2rem; color:#fff; text-shadow:0 0 15px gold; opacity:0; transition:opacity 2.5s; line-height:1.6;";
+        UI.chat.innerHTML = ''; 
+        
+        // --- LOGIKA PESAN (DIPISAH BUBBLE) ---
+        if(choice === 'Pasangan') {
+            // Bubble 1
+            await poetChat("Semoga kita terikat di kehidupan selanjutnya sebagai pasangan paling hangat sedunia.", 60);
+            
+            // Jeda sedikit biar terasa natural (optional)
+            await new Promise(r=>setTimeout(r, 500)); 
+            
+            // Bubble 2
+            await poetChat("Btw, bakal gimana \"Ketidaksengajaan\" yang pertemuin kita nanti ya...", 60);
+        }
+        else if(choice === 'Kakak') {
+            await poetChat("Semoga yaa, nanti kita pasti jadi duo troublemaker wkwk", 60);
+
+            await new Promise(r=>setTimeout(r, 500)); 
+
+            await poetChat("tapi u jangan galak-galak sama adick u inii", 60);
+        }
+        else if(choice === 'Bestie') {
+            await poetChat("Lucu juga ya, entah bakal jadi partner in crime macam apa kitaa", 60);
+        }
+        // -------------------------------------
+
+        await new Promise(r=>setTimeout(r, 2000));
+        
+        const finalDiv = document.createElement('div'); 
+        finalDiv.style.cssText = "text-align:center; margin-top:50px; font-family:Cinzel; font-size:1.2rem; color:#fff; text-shadow:0 0 15px gold; opacity:0; transition:opacity 2.5s; line-height:1.6;";
         finalDiv.innerText = "Apapun itu gw janji bakal sayangin u, bahkan kalo itu dikehidupan selanjutnya";
-        UI.chat.appendChild(finalDiv); scrollDown(); setTimeout(() => finalDiv.style.opacity = '1', 100);
-        await new Promise(r=>setTimeout(r, 6000)); finalTransition();
+        
+        UI.chat.appendChild(finalDiv); 
+        scrollDown(); 
+        setTimeout(() => finalDiv.style.opacity = '1', 100);
+        
+        await new Promise(r=>setTimeout(r, 6000)); 
+        finalTransition();
     }
 
     function finalTransition() {
@@ -1275,7 +1303,7 @@ async function q1(c) {
     function initFireworks() {
         const ctx = setupCanvas(UI.fwCanvas); let particles = [];
         
-        window.launchCenterFirework = () => { AudioSys.play('trail'); setTimeout(() => { createExplosion(window.innerWidth/2, window.innerHeight/2); AudioSys.play('firework'); }, 1000); };
+        window.launchCenterFirework = () => { setTimeout(() => { createExplosion(window.innerWidth/2, window.innerHeight/2); AudioSys.play('firework'); }, 1000); };
         window.launchRandomFirework = (forceSound = false) => { createExplosion(Math.random()*window.innerWidth, Math.random()*window.innerHeight*0.6); if(forceSound) { AudioSys.play('firework'); } };
 
         function createExplosion(x,y) { 
