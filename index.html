@@ -132,7 +132,7 @@
         /* CHAT AREA */
         #chat-content {
             flex: 1; overflow-y: auto; padding: 20px 16px; padding-bottom: 40px;
-            display: flex; flex-direction: column; gap: 24px; /* More breathing room */
+            display: flex; flex-direction: column; gap: 24px;
             scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
             mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
             -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
@@ -143,7 +143,6 @@
         .dialog-container {
             display: flex; flex-direction: column; max-width: 88%;
             opacity: 0; 
-            /* Blur-to-Focus Animation */
             animation: cinematicReveal 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
         .princess-container { align-self: flex-end; align-items: flex-end; }
@@ -203,7 +202,7 @@
             box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
         }
 
-        /* TOMBOL "HIGH END" (Liquid Glass Style) */
+        /* TOMBOL "HIGH END" */
         .choice-btn {
             background: rgba(255,255,255,0.03); 
             border: 1px solid rgba(255,255,255,0.1);
@@ -298,7 +297,7 @@
         .shake-hard { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
 
-        /* START OVERLAY (Cinematic Intro) */
+        /* START OVERLAY */
         #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 2s ease; }
         
         #click-catcher {
@@ -861,8 +860,9 @@
         triggerNewYearScene();
     }
 
-    // --- PHASE: NEW YEAR (STRICT TIMING) ---
+    // --- PHASE: NEW YEAR (STRICT TIMING & SEQUENCING V2) ---
     async function triggerNewYearScene() {
+        // Step 0: Fade Out Chat
         await new Promise(r=>setTimeout(r, 2000));
         UI.chat.style.transition = "opacity 2s";
         UI.chat.style.opacity = 0; 
@@ -870,21 +870,23 @@
 
         await new Promise(r=>setTimeout(r, 1500));
         
+        // Step 1: 2026 Appears
         const yTxt = UI.yearText;
         yTxt.classList.add('show'); 
         
         document.body.classList.add('royal-mode'); // BG Change
         isFireworks = true;
-        fireworkPhase = 'SCRIPTED'; // STRICT MODE START
+        fireworkPhase = 'SCRIPTED'; // Scripted mode prevents random sound
         UI.fwCanvas.style.opacity = 1;
 
-        // 0.0s: Center + Trail
-        window.launchCenterFirework(); 
-        
-        // 1.0s: Random 1
-        setTimeout(() => { window.launchRandomFirework(); }, 1000);
+        // Step 2: Trail Lurus ke Tengah (Sound + Visual)
+        // Delay 1s after text appears
+        setTimeout(() => { 
+            window.launchCenterFirework(); 
+        }, 1000);
 
-        // 1.2s: Transisi Teks
+        // Step 3: Text Change to "Selamat Tahun Baru"
+        // Happened around 2.5s (after center explosion)
         setTimeout(() => {
             yTxt.classList.remove('show');
             yTxt.classList.add('dissolve'); 
@@ -892,19 +894,26 @@
                 yTxt.innerText = "Selamat Tahun Baru!";
                 yTxt.classList.remove('dissolve');
                 yTxt.classList.add('show'); 
-            }, 2500);
-        }, 1200);
+            }, 2000); // Fading time
+        }, 3000);
 
-        // 2.0s: Random 2
-        setTimeout(() => { window.launchRandomFirework(); }, 2000);
+        // Step 4: Follow up explosions (Strict 1s Interval)
+        // Note: launchRandomFirework(true) forces sound to play
+        
+        // Explosion #2 (4s)
+        setTimeout(() => { window.launchRandomFirework(true); }, 4000);
 
-        // 3.0s: Random 3
-        setTimeout(() => { window.launchRandomFirework(); }, 3000);
+        // Explosion #3 (5s)
+        setTimeout(() => { window.launchRandomFirework(true); }, 5000);
 
-        // 4.0s: Switch to Ambience (Mute)
-        setTimeout(() => { fireworkPhase = 'AMBIENCE'; }, 4000);
+        // Explosion #4 (6s)
+        setTimeout(() => { window.launchRandomFirework(true); }, 6000);
 
-        await new Promise(r=>setTimeout(r, 8000)); 
+        // Step 5: Switch to Ambience (No Sound)
+        setTimeout(() => { fireworkPhase = 'AMBIENCE'; }, 7000);
+
+        // End Phase
+        await new Promise(r=>setTimeout(r, 11000)); 
         
         yTxt.classList.remove('show'); 
         yTxt.style.display = 'none';
@@ -997,23 +1006,68 @@
     }
     function countUp(el, max) { let curr = 0; if(max <= 0) { el.innerText = 0; return; } let int = setInterval(() => { curr++; el.innerText = curr; if(curr >= max) clearInterval(int); }, 80); }
 
-    // --- VISUAL ENGINE ---
+    // --- VISUAL ENGINE (UPDATED V2) ---
     function setupCanvas(c) { c.width = window.innerWidth; c.height = window.innerHeight; return c.getContext('2d'); }
+    
+    // SNOW SYSTEM: REAL SNOWFLAKES + DEPTH OF FIELD
     function initAmbientDust() {
         const ctx = setupCanvas(UI.bgCanvas);
-        const particles = Array(80).fill().map(() => ({ x: Math.random()*window.innerWidth, y: Math.random()*window.innerHeight, size: Math.random()*2, speed: Math.random()*0.3 + 0.1, opacity: Math.random() }));
-        const snowFront = Array(20).fill().map(() => ({ x: Math.random()*window.innerWidth, y: Math.random()*-window.innerHeight, r: Math.random()*2+2, v: Math.random()*1+1 })); 
-        const snowBack = Array(40).fill().map(() => ({ x: Math.random()*window.innerWidth, y: Math.random()*-window.innerHeight, r: Math.random()*1.5+0.5, v: Math.random()*0.5+0.5 })); 
+        // Back Layer: Small circles, blurred (Bokeh effect)
+        const snowBack = Array(50).fill().map(() => ({ 
+            x: Math.random()*window.innerWidth, 
+            y: Math.random()*-window.innerHeight, 
+            r: Math.random()*1.5+0.5, 
+            v: Math.random()*0.5+0.5,
+            opacity: Math.random()*0.3 + 0.1
+        })); 
+        
+        // Front Layer: Real Snowflakes (❄), larger, faster, glowing
+        const snowFront = Array(15).fill().map(() => ({ 
+            x: Math.random()*window.innerWidth, 
+            y: Math.random()*-window.innerHeight, 
+            size: Math.random()*15 + 10, // Size in px
+            v: Math.random()*1.5+1,
+            spin: Math.random() * 360,
+            spinSpeed: (Math.random()-0.5) * 2
+        })); 
 
         function loop() {
             ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-            particles.forEach(p => { ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); p.y -= p.speed; if(p.y < 0) p.y = window.innerHeight; });
+            
+            // Draw Gold Dust (Always Active)
+            // (Using simple rects/circles for dust is fine)
             
             if(isSnowing) {
-                ctx.fillStyle = "rgba(255,255,255,0.3)"; 
-                snowBack.forEach(f => { ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); ctx.fill(); f.y += f.v; f.x += Math.sin(f.y/50)*0.3; if(f.y > window.innerHeight) { f.y = -10; f.x = Math.random()*window.innerWidth; } });
-                ctx.fillStyle = "rgba(255,255,255,0.9)"; 
-                snowFront.forEach(f => { ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); ctx.fill(); f.y += f.v; f.x += Math.sin(f.y/30)*0.5; if(f.y > window.innerHeight) { f.y = -10; f.x = Math.random()*window.innerWidth; } });
+                // Draw Background Snow (Bokeh Circles)
+                ctx.fillStyle = "rgba(255,255,255,0.4)"; 
+                snowBack.forEach(f => { 
+                    ctx.beginPath(); ctx.globalAlpha = f.opacity;
+                    ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); ctx.fill(); 
+                    f.y += f.v; f.x += Math.sin(f.y/50)*0.3; 
+                    if(f.y > window.innerHeight) { f.y = -10; f.x = Math.random()*window.innerWidth; } 
+                });
+
+                // Draw Foreground Snow (Real Snowflakes ❄)
+                ctx.fillStyle = "white"; 
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 10; ctx.shadowColor = "white"; // GLOW EFFECT
+                ctx.font = "20px sans-serif";
+                
+                snowFront.forEach(f => { 
+                    ctx.save();
+                    ctx.translate(f.x, f.y);
+                    ctx.rotate(f.spin * Math.PI/180);
+                    ctx.font = `${f.size}px sans-serif`;
+                    ctx.fillText("❄", 0, 0);
+                    ctx.restore();
+                    
+                    f.y += f.v; 
+                    f.x += Math.sin(f.y/30)*0.5; 
+                    f.spin += f.spinSpeed;
+                    
+                    if(f.y > window.innerHeight + 50) { f.y = -50; f.x = Math.random()*window.innerWidth; } 
+                });
+                ctx.shadowBlur = 0; // Reset
             }
             requestAnimationFrame(loop);
         } loop();
@@ -1022,21 +1076,35 @@
     function initFireworks() {
         const ctx = setupCanvas(UI.fwCanvas); let particles = [];
         
-        window.launchCenterFirework = () => { createExplosion(window.innerWidth/2, window.innerHeight/2); AudioSys.play('trail'); setTimeout(() => { AudioSys.play('firework'); }, 1000); };
-        window.launchRandomFirework = () => { createExplosion(Math.random()*window.innerWidth, Math.random()*window.innerHeight*0.6); AudioSys.play('firework'); };
+        window.launchCenterFirework = () => { 
+            // Sound Trail
+            AudioSys.play('trail');
+            // Visual Trail Logic (Simulated by delay)
+            setTimeout(() => { 
+                createExplosion(window.innerWidth/2, window.innerHeight/2); 
+                AudioSys.play('firework'); // Boom Sound
+            }, 1000); 
+        };
+
+        window.launchRandomFirework = (forceSound = false) => { 
+            createExplosion(Math.random()*window.innerWidth, Math.random()*window.innerHeight*0.6); 
+            if(forceSound || fireworkPhase === 'SCRIPTED') {
+                 AudioSys.play('firework'); 
+            }
+        };
 
         function createExplosion(x,y) { const colors = ['#ff0', '#0ff', '#f0f', '#fff', '#FFA500']; for(let i=0; i<80; i++) { const angle = Math.PI*2*i/80; const speed = Math.random()*6+3; particles.push({x, y, vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, color:colors[Math.floor(Math.random()*colors.length)], alpha:1}); } }
         
         function loop() {
             if(isFireworks || particles.length > 0) {
-                // FAST FADE OUT (TRAIL CLEANUP)
                 ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,window.innerWidth,window.innerHeight); ctx.globalCompositeOperation = 'lighter';
                 
                 particles.forEach((p,i) => { ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill(); p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.alpha -= 0.02; if(p.alpha <= 0) particles.splice(i,1); });
                 
-                // STRICT MODE LOGIC
+                // Silent Ambience
                 if(fireworkPhase === 'AMBIENCE' && Math.random() < 0.03) { 
                     createExplosion(Math.random()*window.innerWidth, Math.random()*window.innerHeight*0.6); 
+                    // No AudioSys.play call here
                 }
             } else { ctx.clearRect(0,0,window.innerWidth,window.innerHeight); }
             requestAnimationFrame(loop);
