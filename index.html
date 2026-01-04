@@ -1078,15 +1078,32 @@ async function q1(c) {
 
     async function runPhaseLetter(wishText) {
         await new Promise(r=>setTimeout(r, 1000));
+        
+        // Membuat Kartu Doa
         const letter = document.createElement('div');
         letter.className = 'letter-card';
-        letter.innerHTML = `<div style="border-bottom:1px solid rgba(0,0,0,0.1); margin-bottom:15px; padding-bottom:5px; font-size:1rem; opacity:0.6;">Doa i untuk Tahun 2026 </div><div style="margin-bottom:20px; font-size:1.6rem; line-height:1.4;">"${wishText}"</div><div style="text-align:right; font-size:1rem; margin-top:10px;">Priscilla Annastasya Theophilia.</div>`;
-        UI.chat.appendChild(letter); scrollDown(); AudioSys.play('heaven');
-        await new Promise(r=>setTimeout(r, 3500));
+        letter.innerHTML = `<div style="border-bottom:1px solid rgba(0,0,0,0.1); margin-bottom:15px; padding-bottom:5px; font-size:1rem; opacity:0.6;">Dear God, Aku berharap... </div><div style="margin-bottom:20px; font-size:1.6rem; line-height:1.4;">"${wishText}"</div><div style="text-align:right; font-size:1rem; margin-top:10px;">Priscilla A.T.</div>`;
+        UI.chat.appendChild(letter); 
+        scrollDown(); 
+        AudioSys.play('heaven');
+
+        // --- DURASI 1: KARTU DOA ---
+        // Aslinya 3500 (3.5 detik). Saya ubah jadi 7000 (7 detik).
+        // Ini waktu buat baca kartu doanya sebelum layar jadi gelap.
+        await new Promise(r=>setTimeout(r, 7000)); 
+
+        // Munculin Tulisan Cinematic
         UI.cinematicMsg.innerText = "Semoga doa yang u harapkan tercapai, apapun itu";
         UI.cinematicOverlay.style.opacity = 1;
-        await new Promise(r=>setTimeout(r, 4500));
+
+        // --- DURASI 2: TULISAN "SEMOGA DOA..." ---
+        // Aslinya 4500 (4.5 detik). Saya ubah jadi 8000 (8 detik).
+        // Ini waktu buat meresapi tulisan cinematic-nya.
+        await new Promise(r=>setTimeout(r, 8000)); 
+
         UI.cinematicOverlay.style.opacity = 0; 
+        
+        // Pindah ke scene berikutnya
         if(state.gold) goldenPromise(); else finalTransition();
     }
 
@@ -1111,32 +1128,35 @@ async function q1(c) {
     }
 
     async function melancholy(choice) {
+        // 1. Bersihkan area chat
         UI.chat.innerHTML = ''; 
         
-        // --- LOGIKA PESAN (DIPISAH BUBBLE) ---
-        if(choice === 'Pasangan') {
-            // Bubble 1
+        // 2. Cek Pilihan User
+        if (choice === 'pasangan') {
+            // --- KHUSUS PASANGAN (2 BUBBLE) ---
             await poetChat("Semoga kita terikat di kehidupan selanjutnya sebagai pasangan paling hangat sedunia.", 60);
+            await new Promise(r => setTimeout(r, 800)); 
+            await poetChat("Btw, bakal gimana \"Ketidaksengajaan\" yang pertemuin kita nanti ya...", 60);
+        
+        } else if (choice === 'kakak') {
+            // --- KHUSUS KAKAK (2 BUBBLE - Update Baru) ---
             
-            // Jeda sedikit biar terasa natural (optional)
-            await new Promise(r=>setTimeout(r, 500)); 
+            // Bubble 1
+            await poetChat("Semoga yaa, tapi u jangan galak-galak sama adick u inii,", 60);
+            
+            // Jeda sebentar
+            await new Promise(r => setTimeout(r, 800)); 
             
             // Bubble 2
-            await poetChat("Btw, bakal gimana \"Ketidaksengajaan\" yang pertemuin kita nanti ya...", 60);
-        }
-        else if(choice === 'Kakak') {
-            await poetChat("Semoga yaa, nanti kita pasti jadi duo troublemaker wkwk", 60);
-
-            await new Promise(r=>setTimeout(r, 500)); 
-
-            await poetChat("tapi u jangan galak-galak sama adick u inii", 60);
-        }
-        else if(choice === 'Bestie') {
+            await poetChat("nanti kita pasti jadi duo troublemaker wkwk", 60);
+            
+        } else if (choice === 'bestie') {
+            // --- PILIHAN BESTIE (1 BUBBLE) ---
             await poetChat("Lucu juga ya, entah bakal jadi partner in crime macam apa kitaa", 60);
         }
-        // -------------------------------------
 
-        await new Promise(r=>setTimeout(r, 2000));
+        // 3. Bagian Penutup (Sama untuk semua)
+        await new Promise(r => setTimeout(r, 2000));
         
         const finalDiv = document.createElement('div'); 
         finalDiv.style.cssText = "text-align:center; margin-top:50px; font-family:Cinzel; font-size:1.2rem; color:#fff; text-shadow:0 0 15px gold; opacity:0; transition:opacity 2.5s; line-height:1.6;";
@@ -1144,9 +1164,11 @@ async function q1(c) {
         
         UI.chat.appendChild(finalDiv); 
         scrollDown(); 
+        
         setTimeout(() => finalDiv.style.opacity = '1', 100);
         
-        await new Promise(r=>setTimeout(r, 6000)); 
+        // 4. Pindah ke Final Screen
+        await new Promise(r => setTimeout(r, 6000)); 
         finalTransition();
     }
 
